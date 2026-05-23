@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordlyEN</title>
-    <link rel="icon" href="..//img/anhmuctieu.png">
+    <title>Đăng Ký - WordlyEN</title>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom CSS -->
@@ -18,23 +17,23 @@
             <div class="auth-slider">
                 <div class="slide active">
                     <div class="slide-content">
-                        <i class="fas fa-book-reader"></i>
-                        <h3>Học Tiếng Anh Hiệu Quả</h3>
-                        <p>Phương pháp học tập khoa học giúp bạn tiến bộ nhanh chóng</p>
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Bắt Đầu Hành Trình</h3>
+                        <p>Tham gia cộng đồng học viên và cùng nhau tiến bộ mỗi ngày</p>
                     </div>
                 </div>
                 <div class="slide">
                     <div class="slide-content">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Theo Dõi Tiến Độ</h3>
-                        <p>Thống kê chi tiết giúp bạn nắm rõ quá trình học tập của mình</p>
+                        <i class="fas fa-users"></i>
+                        <h3>Cộng Đồng Sôi Động</h3>
+                        <p>Kết nối với hàng ngàn học viên đam mê tiếng Anh trên toàn quốc</p>
                     </div>
                 </div>
                 <div class="slide">
                     <div class="slide-content">
-                        <i class="fas fa-trophy"></i>
-                        <h3>Đạt Mục Tiêu</h3>
-                        <p>Hoàn thành thử thách và nhận thành tựu đặc biệt</p>
+                        <i class="fas fa-star"></i>
+                        <h3>Miễn Phí 100%</h3>
+                        <p>Truy cập tất cả tính năng học tập mà không mất bất kỳ chi phí nào</p>
                     </div>
                 </div>
             </div>
@@ -56,12 +55,12 @@
 
                 <!-- Title -->
                 <div class="auth-header">
-                    <h2>Đăng Nhập</h2>
-                    <p>Chào mừng bạn quay trở lại!</p>
+                    <h2>Đăng Ký</h2>
+                    <p>Tạo tài khoản để bắt đầu học tập</p>
                 </div>
 
-                <!-- Login Form -->
-                <form id="loginForm" class="auth-form">
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form">
                     <!-- Email -->
                     <div class="form-group">
                         <label for="email">
@@ -89,9 +88,10 @@
                                 type="password" 
                                 id="password" 
                                 name="password"
-                                placeholder="Nhập mật khẩu"
-                                autocomplete="current-password"
+                                placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
+                                autocomplete="new-password"
                                 required
+                                minlength="6"
                             >
                             <button type="button" class="toggle-password" onclick="togglePassword('password')">
                                 <i class="fas fa-eye"></i>
@@ -99,28 +99,51 @@
                         </div>
                     </div>
 
-                    <!-- Remember & Forgot -->
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label for="confirmPassword">
+                            <i class="fas fa-lock"></i>
+                            Xác nhận mật khẩu
+                        </label>
+                        <div class="password-input">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword"
+                                placeholder="Nhập lại mật khẩu"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
                     <div class="form-options">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="remember">
-                            <span>Ghi nhớ đăng nhập</span>
+                            <input type="checkbox" id="terms" required>
+                            <span>Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a></span>
                         </label>
-                        <a href="#" class="forgot-link">Quên mật khẩu?</a>
                     </div>
 
                     <!-- Error Message -->
                     <div id="errorMessage" class="error-message" style="display: none;"></div>
 
+                    <!-- Success Message -->
+                    <div id="successMessage" class="success-message" style="display: none;"></div>
+
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Đăng Nhập
+                    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                        <i class="fas fa-user-plus"></i>
+                        Đăng Ký
                     </button>
                 </form>
 
-                <!-- Register Link -->
+                <!-- Login Link -->
                 <div class="auth-footer">
-                    <p>Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
+                    <p>Đã có tài khoản? <a href="login.html">Đăng nhập ngay</a></p>
                 </div>
             </div>
         </div>

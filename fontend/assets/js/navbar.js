@@ -17,6 +17,9 @@ function initNavbar() {
     // Set active cho trang hiện tại
     setActivePage(currentPage);
     
+    // Load user profile
+    loadUserProfile();
+    
     // Thêm sự kiện click cho mỗi menu item
     menuItems.forEach(item => {
         item.addEventListener('click', function() {
@@ -35,6 +38,12 @@ function initNavbar() {
         logoutBtn.addEventListener('click', function() {
             // Xác nhận logout
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                // Xóa token và user info
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+                
                 // Chuyển về trang login
                 window.location.href = 'login.html';
             }
@@ -48,6 +57,72 @@ function initNavbar() {
     }
     
     console.log('✅ Navbar đã sẵn sàng!');
+}
+
+// =========================
+// LOAD USER PROFILE
+// =========================
+async function loadUserProfile() {
+    try {
+        // Lấy token
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+            console.warn('⚠️ Chưa đăng nhập');
+            return;
+        }
+        
+        // Gọi API lấy profile
+        const response = await fetch('http://localhost:3000/api/users/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const user = data.user;
+            
+            console.log('✅ Đã load user profile:', user);
+            
+            // Cập nhật tên user
+            const userNameElement = document.querySelector('.user-name');
+            if (userNameElement) {
+                userNameElement.textContent = user.full_name || user.email || 'Người dùng';
+            }
+            
+            // Cập nhật avatar
+            const userAvatarElement = document.querySelector('.user-avatar');
+            if (userAvatarElement) {
+                if (user.avatar_url) {
+                    // Nếu có avatar_url, thay icon bằng ảnh
+                    // Nếu avatar_url bắt đầu bằng /uploads, thêm base URL
+                    const avatarSrc = user.avatar_url.startsWith('/uploads') 
+                        ? `http://localhost:3000${user.avatar_url}` 
+                        : user.avatar_url;
+                    userAvatarElement.innerHTML = `<img src="${avatarSrc}" alt="Avatar">`;
+                } else {
+                    // Nếu không có, giữ nguyên icon
+                    userAvatarElement.innerHTML = '<i class="fas fa-user"></i>';
+                }
+            }
+            
+            // Lưu user info vào localStorage để dùng sau
+            localStorage.setItem('user', JSON.stringify(user));
+            
+        } else {
+            console.error('❌ Không thể load profile');
+            // Nếu token hết hạn, chuyển về login
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                sessionStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        }
+    } catch (error) {
+        console.error('❌ Lỗi khi load profile:', error);
+    }
 }
 
 // =========================

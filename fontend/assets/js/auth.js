@@ -1,283 +1,234 @@
-/**
- * ============================================
- * AUTHENTICATION FORM HANDLERS
- * ============================================
- * Xử lý đăng nhập, đăng ký, validation
- */
+// =========================
+// API CONFIGURATION
+// =========================
+const API_BASE_URL = 'http://localhost:3000/api';
 
-// ============================================
-// PASSWORD TOGGLE FUNCTIONALITY
-// ============================================
-function togglePassword(inputId, iconId) {
-    const passwordInput = document.getElementById(inputId);
-    const eyeIcon = document.getElementById(iconId);
+// =========================
+// AUTO SLIDER
+// =========================
+let currentSlideIndex = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.dot');
+
+function showSlide(index) {
+    // Xóa active khỏi tất cả
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
     
-    if (!passwordInput || !eyeIcon) {
-        console.error('Password input or icon not found');
-        return;
-    }
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        // Eye slash icon (hidden password)
-        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
-    } else {
-        passwordInput.type = 'password';
-        // Eye icon (visible password)
-        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
-    }
+    // Thêm active cho slide hiện tại
+    slides[index].classList.add('active');
+    dots[index].classList.add('active');
 }
 
-// ============================================
-// LOGIN FORM HANDLER
-// ============================================
-function handleLoginSubmit(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const submitBtn = form.querySelector('.auth-submit');
-    const email = document.getElementById('email')?.value;
-    const password = document.getElementById('password')?.value;
-    
-    // Basic validation
-    if (!email || !password) {
-        showAlert('Vui lòng điền đầy đủ thông tin!', 'error');
-        return;
-    }
-    
-    if (!isValidEmail(email)) {
-        showAlert('Email không hợp lệ!', 'error');
-        return;
-    }
-    
-    // Show loading state
-    setButtonLoading(submitBtn, true);
-    
-    // Simulate API call
-    setTimeout(() => {
-        setButtonLoading(submitBtn, false);
-        
-        // TODO: Replace with actual API call
-        console.log('Login attempt:', { email, password });
-        showAlert('Đăng nhập thành công!', 'success');
-        
-        // Redirect after successful login
-        // window.location.href = '../pages/index.html';
-    }, 2000);
+function nextSlide() {
+    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+    showSlide(currentSlideIndex);
 }
 
-// ============================================
-// REGISTER FORM HANDLER
-// ============================================
-function handleRegisterSubmit(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const submitBtn = form.querySelector('.auth-submit');
-    const fullName = document.getElementById('fullName')?.value;
-    const email = document.getElementById('email')?.value;
-    const password = document.getElementById('password')?.value;
-    const confirmPassword = document.getElementById('confirmPassword')?.value;
-    
-    // Validation
-    if (!fullName || !email || !password || !confirmPassword) {
-        showAlert('Vui lòng điền đầy đủ thông tin!', 'error');
-        return;
-    }
-    
-    if (!isValidEmail(email)) {
-        showAlert('Email không hợp lệ!', 'error');
-        return;
-    }
-    
-    if (password.length < 6) {
-        showAlert('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        showAlert('Mật khẩu xác nhận không khớp!', 'error');
-        return;
-    }
-    
-    // Show loading state
-    setButtonLoading(submitBtn, true);
-    
-    // Simulate API call
-    setTimeout(() => {
-        setButtonLoading(submitBtn, false);
-        
-        // TODO: Replace with actual API call
-        console.log('Register attempt:', { fullName, email, password });
-        showAlert('Đăng ký thành công! Chuyển đến trang đăng nhập...', 'success');
-        
-        // Redirect to login page
-        setTimeout(() => {
-            // window.location.href = 'login.html';
-        }, 1500);
-    }, 2000);
+function currentSlide(index) {
+    currentSlideIndex = index;
+    showSlide(currentSlideIndex);
 }
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-
-/**
- * Validate email format
- */
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+// Auto slide mỗi 4 giây
+if (slides.length > 0) {
+    setInterval(nextSlide, 4000);
 }
 
-/**
- * Set button loading state
- */
-function setButtonLoading(button, isLoading) {
-    if (!button) return;
-    
-    if (isLoading) {
-        button.classList.add('loading');
-        button.disabled = true;
-        button.dataset.originalText = button.textContent;
-    } else {
-        button.classList.remove('loading');
-        button.disabled = false;
-        if (button.dataset.originalText) {
-            button.textContent = button.dataset.originalText;
-        }
-    }
-}
-
-/**
- * Show alert message
- */
-function showAlert(message, type = 'info') {
-    // Remove existing alerts
-    const existingAlerts = document.querySelectorAll('.alert');
-    existingAlerts.forEach(alert => alert.remove());
-    
-    // Create alert element
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
-    
-    const icon = type === 'error' ? '⚠️' : type === 'success' ? '✓' : 'ℹ️';
-    alert.innerHTML = `
-        <span>${icon}</span>
-        <span>${message}</span>
-    `;
-    
-    // Insert alert before form
-    const form = document.querySelector('.auth-form');
-    if (form) {
-        form.parentNode.insertBefore(alert, form);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            alert.remove();
-        }, 5000);
-    } else {
-        // Fallback to browser alert
-        alert(message);
-    }
-}
-
-/**
- * Show inline error for specific input
- */
-function showInputError(inputId, message) {
+// =========================
+// TOGGLE PASSWORD VISIBILITY
+// =========================
+function togglePassword(inputId) {
     const input = document.getElementById(inputId);
-    if (!input) return;
+    const button = input.parentElement.querySelector('.toggle-password');
+    const icon = button.querySelector('i');
     
-    // Add error class
-    input.classList.add('error');
-    
-    // Remove existing error message
-    const existingError = input.parentNode.querySelector('.error-message');
-    if (existingError) {
-        existingError.remove();
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
     }
+}
+
+// =========================
+// SHOW MESSAGE
+// =========================
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'flex';
     
-    // Create error message
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.innerHTML = `
-        <span>⚠️</span>
-        <span>${message}</span>
-    `;
+    // Auto hide sau 5 giây
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.style.display = 'flex';
+        
+        // Auto hide sau 5 giây
+        setTimeout(() => {
+            successDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+function hideMessages() {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
     
-    // Insert after input
-    input.parentNode.appendChild(errorDiv);
-    
-    // Remove error on input change
-    input.addEventListener('input', function removeError() {
-        input.classList.remove('error');
-        const errorMsg = input.parentNode.querySelector('.error-message');
-        if (errorMsg) {
-            errorMsg.remove();
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
+}
+
+// =========================
+// LOGIN FORM
+// =========================
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideMessages();
+        
+        // Lấy dữ liệu form
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('remember').checked;
+        
+        // Validate
+        if (!email || !password) {
+            showError('Vui lòng nhập đầy đủ thông tin!');
+            return;
         }
-        input.removeEventListener('input', removeError);
+        
+        // Disable button
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
+        
+        try {
+            // Gọi API login
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Đăng nhập thành công
+                console.log('✅ Đăng nhập thành công:', data);
+                
+                // Lưu token
+                if (remember) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                } else {
+                    sessionStorage.setItem('token', data.token);
+                    sessionStorage.setItem('user', JSON.stringify(data.user));
+                }
+                
+                // Chuyển đến trang chủ
+                window.location.href = 'home .html';
+            } else {
+                // Đăng nhập thất bại
+                showError(data.message || 'Email hoặc mật khẩu không đúng!');
+            }
+        } catch (error) {
+            console.error('❌ Lỗi:', error);
+            showError('Không thể kết nối đến server. Vui lòng thử lại!');
+        } finally {
+            // Enable button
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng Nhập';
+        }
     });
 }
 
-/**
- * Clear all input errors
- */
-function clearInputErrors() {
-    const errorInputs = document.querySelectorAll('.form-input.error');
-    errorInputs.forEach(input => {
-        input.classList.remove('error');
+// =========================
+// REGISTER FORM
+// =========================
+const registerForm = document.getElementById('registerForm');
+if (registerForm) {
+    registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideMessages();
+        
+        // Lấy dữ liệu form
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const terms = document.getElementById('terms').checked;
+        
+        // Validate
+        if (!email || !password || !confirmPassword) {
+            showError('Vui lòng nhập đầy đủ thông tin!');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showError('Mật khẩu phải có ít nhất 6 ký tự!');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            showError('Mật khẩu xác nhận không khớp!');
+            return;
+        }
+        
+        if (!terms) {
+            showError('Vui lòng đồng ý với điều khoản dịch vụ!');
+            return;
+        }
+        
+        // Disable button
+        const registerBtn = document.getElementById('registerBtn');
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
+        
+        try {
+            // Gọi API register
+            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Đăng ký thành công
+                console.log('✅ Đăng ký thành công:', data);
+                showSuccess('Đăng ký thành công! Đang chuyển đến trang đăng nhập...');
+                
+                // Chuyển đến trang login sau 2 giây
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                // Đăng ký thất bại
+                showError(data.message || 'Đăng ký thất bại. Vui lòng thử lại!');
+            }
+        } catch (error) {
+            console.error('❌ Lỗi:', error);
+            showError('Không thể kết nối đến server. Vui lòng thử lại!');
+        } finally {
+            // Enable button
+            registerBtn.disabled = false;
+            registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Đăng Ký';
+        }
     });
-    
-    const errorMessages = document.querySelectorAll('.error-message');
-    errorMessages.forEach(msg => msg.remove());
 }
-
-// ============================================
-// SOCIAL LOGIN HANDLERS
-// ============================================
-function handleGoogleLogin() {
-    console.log('Google login clicked');
-    showAlert('Tính năng đăng nhập Google đang được phát triển', 'info');
-    // TODO: Implement Google OAuth
-}
-
-function handleFacebookLogin() {
-    console.log('Facebook login clicked');
-    showAlert('Tính năng đăng nhập Facebook đang được phát triển', 'info');
-    // TODO: Implement Facebook OAuth
-}
-
-// ============================================
-// INITIALIZE EVENT LISTENERS
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Login form
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLoginSubmit);
-    }
-    
-    // Register form
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegisterSubmit);
-    }
-    
-    // Social login buttons
-    const googleBtns = document.querySelectorAll('[title*="Google"]');
-    googleBtns.forEach(btn => {
-        btn.addEventListener('click', handleGoogleLogin);
-    });
-    
-    const facebookBtns = document.querySelectorAll('[title*="Facebook"]');
-    facebookBtns.forEach(btn => {
-        btn.addEventListener('click', handleFacebookLogin);
-    });
-});
-
-// Export functions for global use
-window.togglePassword = togglePassword;
-window.showAlert = showAlert;
-window.showInputError = showInputError;
-window.clearInputErrors = clearInputErrors;

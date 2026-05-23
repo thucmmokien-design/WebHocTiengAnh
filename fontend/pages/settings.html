@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WordlyEN</title>
+    <link rel="icon" href="..//img/anhmuctieu.png">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom CSS -->
@@ -15,8 +16,162 @@
     <div class="nav-container"></div>
     
     <main class="page-content">
-        <h1>Cài Đặt</h1>
+        <div class="settings-container">
+            <h1 class="settings-title">Cài Đặt Tài Khoản</h1>
+            
+            <!-- Avatar Section -->
+            <div class="settings-section">
+                <h2 class="section-title">Ảnh Đại Diện</h2>
+                <div class="avatar-section">
+                    <div class="avatar-preview" id="avatarPreview">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="avatar-actions">
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                        <button class="btn btn-primary" onclick="document.getElementById('avatarInput').click()">
+                            <i class="fas fa-upload"></i> Tải Ảnh Lên
+                        </button>
+                        <p class="avatar-note">Chấp nhận: JPG, PNG, GIF, WEBP (Tối đa 5MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Information Section -->
+            <div class="settings-section">
+                <h2 class="section-title">Thông Tin Cá Nhân</h2>
+                
+                <!-- Full Name -->
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="fas fa-user"></i>
+                        <span>Họ và Tên</span>
+                    </div>
+                    <div class="info-value">
+                        <span id="fullNameDisplay">Đang tải...</span>
+                        <button class="btn-edit" onclick="openEditNameModal()">
+                            <i class="fas fa-edit"></i> Sửa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Email (Read-only) -->
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email</span>
+                    </div>
+                    <div class="info-value">
+                        <span id="emailDisplay">Đang tải...</span>
+                        <span class="badge badge-secondary">Không thể thay đổi</span>
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Vai Trò</span>
+                    </div>
+                    <div class="info-value">
+                        <span id="roleDisplay" class="badge badge-primary">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Created At -->
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Ngày Tạo</span>
+                    </div>
+                    <div class="info-value">
+                        <span id="createdAtDisplay">Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Section -->
+            <div class="settings-section">
+                <h2 class="section-title">Bảo Mật</h2>
+                
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="fas fa-lock"></i>
+                        <span>Mật Khẩu</span>
+                    </div>
+                    <div class="info-value">
+                        <span>••••••••</span>
+                        <button class="btn-edit" onclick="openChangePasswordModal()">
+                            <i class="fas fa-key"></i> Đổi Mật Khẩu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- Modal: Edit Full Name -->
+    <div id="editNameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Chỉnh Sửa Họ và Tên</h3>
+                <button class="modal-close" onclick="closeEditNameModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newFullName">Họ và Tên Mới</label>
+                    <input type="text" id="newFullName" class="form-input" placeholder="Nhập họ và tên mới">
+                </div>
+                <div id="nameError" class="error-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditNameModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="saveFullName()">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Change Password -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Đổi Mật Khẩu</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="oldPassword">Mật Khẩu Hiện Tại</label>
+                    <input type="password" id="oldPassword" class="form-input" placeholder="Nhập mật khẩu hiện tại">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Mật Khẩu Mới</label>
+                    <input type="password" id="newPassword" class="form-input" placeholder="Nhập mật khẩu mới">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Xác Nhận Mật Khẩu Mới</label>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Nhập lại mật khẩu mới">
+                </div>
+                <div id="passwordError" class="error-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeChangePasswordModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="savePassword()">
+                    <i class="fas fa-save"></i> Đổi Mật Khẩu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="successText"></span>
+    </div>
 
     <script src="../assets/js/home.js"></script>
     <script src="../assets/js/navbar.js"></script>

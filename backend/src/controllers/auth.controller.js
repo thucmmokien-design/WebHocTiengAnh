@@ -9,7 +9,7 @@ const register=async (req, res)=>{
         const {email,password,full_name}=req.body;
 
         // check email
-        const [existingUsers]=await db.query('SELECT * FROM Users WHERE email = ?', [email]);
+        const [existingUsers]=await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (existingUsers.length>0){
             return res.status(400).json({ message: 'Email này đã được sử dụng!' });
         }
@@ -19,7 +19,7 @@ const register=async (req, res)=>{
 
         // lưu db
         await db.query(
-            'INSERT INTO Users (email,password_hash,full_name) VALUES (?,?,?)',
+            'INSERT INTO users (email,password_hash,full_name) VALUES (?,?,?)',
             [email,hashedPassword,full_name]
         );
         res.status(201).json({ message: 'Đăng ký tài khoản thành công!' });
@@ -36,7 +36,7 @@ const login = async (req, res) => {
         const { email, password } = req.body;
 
         // 1. Tìm user theo email
-        const [users] = await db.query('SELECT * FROM Users WHERE email = ?', [email]);
+        const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
             return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng!' });
         }
