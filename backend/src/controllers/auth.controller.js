@@ -1,32 +1,62 @@
-const db=require('../config/db');
-const bcrypt=require('bcrypt');
-const jwt=require('jsonwebtoken');
+const db = require('../config/db');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-//post /api/auth/register
-
-const register=async (req, res)=>{
-    try{
-        const {email,password,full_name}=req.body;
+// post /api/auth/register
+const register = async (req, res) => {
+    try {
+        const { email, password, full_name } = req.body;
 
         // check email
-        const [existingUsers]=await db.query('SELECT * FROM users WHERE email = ?', [email]);
-        if (existingUsers.length>0){
+        const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (existingUsers.length > 0) {
             return res.status(400).json({ message: 'Email này đã được sử dụng!' });
         }
-        // mã hoá sản phẩm
-        const salt=await bcrypt.genSalt(10);
-        const hashedPassword=await bcrypt.hash(password,salt)
-
-        // lưu db
-        await db.query(
-            'INSERT INTO users (email,password_hash,full_name) VALUES (?,?,?)',
-            [email,hashedPassword,full_name]
-        );
-        res.status(201).json({ message: 'Đăng ký tài khoản thành công!' });
-
         
-    }catch(error){
-        res.status(500).json({message:'Lỗi server',error:error.message});
+        // mã hoá mật khẩu
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // 1. Lưu DB và hứng lấy kết quả trả về để lấy ID của User mới
+        const [userResult] = await db.query(
+            'INSERT INTO users (email, password_hash, full_name) VALUES (?, ?, ?)',
+            [email, hashedPassword, full_name]
+        );
+        
+        // Lấy ID của tài khoản vừa tạo
+        const newUserId = userResult.insertId;
+
+        // 2. --- BẮT ĐẦU: TỰ ĐỘNG THÊM BỘ TỪ MẶC ĐỊNH ---
+        // Giả sử trong DB, các bộ từ cơ bản nhập môn có ID là 1, 2, 3
+        const defaultSetIds = [1, 2, 3]; 
+
+        // Lấy tất cả id từ vựng thuộc các bộ mặc định này
+        const [defaultWords] = await db.query(
+            'SELECT id FROM Words WHERE set_id IN (?)',
+            [defaultSetIds]
+        );
+
+        // Nếu kho từ vựng có dữ liệu, tiến hành bơm vào tài khoản mới
+        if (defaultWords.length > 0) {
+            // Tạo mảng dữ liệu để chuẩn bị Insert hàng loạt
+            const progressRecords = defaultWords.map(word => [
+                newUserId,
+                word.id,
+                'LEARNING' // Gắn trạng thái mặc định là đang học
+            ]);
+
+            // Bơm toàn bộ vào bảng Tiến trình học (UserProgress)
+            await db.query(
+                'INSERT INTO UserProgress (user_id, word_id, status) VALUES ?',
+                [progressRecords]
+            );
+        }
+        // --- KẾT THÚC: THÊM BỘ TỪ MẶC ĐỊNH ---
+
+        res.status(201).json({ message: 'Đăng ký tài khoản thành công! Các bộ từ vựng nhập môn đã được thêm vào giỏ.' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server', error: error.message });
     }
 };
 
