@@ -38,6 +38,8 @@ function initNavbar() {
         logoutBtn.addEventListener('click', function() {
             // Xác nhận logout
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                localStorage.removeItem("nav-container")
+                localStorage.removeItem("page-content")
                 // Xóa token và user info
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');

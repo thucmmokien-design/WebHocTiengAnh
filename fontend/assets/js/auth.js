@@ -15,6 +15,7 @@ function showSlide(index) {
     slides.forEach(slide => slide.classList.remove('active'));
     dots.forEach(dot => dot.classList.remove('active'));
     
+
     // Thêm active cho slide hiện tại
     slides[index].classList.add('active');
     dots[index].classList.add('active');
@@ -33,25 +34,6 @@ function currentSlide(index) {
 // Auto slide mỗi 4 giây
 if (slides.length > 0) {
     setInterval(nextSlide, 4000);
-}
-
-// =========================
-// TOGGLE PASSWORD VISIBILITY
-// =========================
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const button = input.parentElement.querySelector('.toggle-password');
-    const icon = button.querySelector('i');
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
 }
 
 // =========================
@@ -138,7 +120,8 @@ if (loginForm) {
                     sessionStorage.setItem('token', data.token);
                     sessionStorage.setItem('user', JSON.stringify(data.user));
                 }
-                
+                localStorage.setItem("nav-container","true");
+                localStorage.setItem("page-content", "true");
                 // Chuyển đến trang chủ
                 window.location.href = 'home .html';
             } else {

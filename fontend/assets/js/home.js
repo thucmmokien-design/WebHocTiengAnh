@@ -6,7 +6,11 @@ fetch("../components/navbar.html")
     .then(data => {
         // render nav
         document.querySelector(".nav-container").innerHTML = data;
-
+        const isLogin = localStorage.getItem("nav-container"); 
+        const isLogintwo = localStorage.getItem("page-content");
+        if(isLogin !== "true" || isLogintwo !== "true"){
+            window.location.href ="login.html"
+        }
         // load nav js
         const script = document.createElement("script");
         script.src = "../assets/js/navbar.js";

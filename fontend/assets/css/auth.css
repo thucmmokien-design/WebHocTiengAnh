@@ -1,19 +1,4 @@
 /* ============================================
-   AUTH PAGES STYLES (LOGIN & REGISTER)
-   ============================================ */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: var(--font-family);
-    background-color: var(--bg-secondary);
-}
-
-/* ============================================
    AUTH CONTAINER
    ============================================ */
 .auth-container {
@@ -51,7 +36,7 @@ body {
     color: var(--color-primary);
 }
 
-.auth-logo h1 {
+.auth-logo span {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
     color: var(--color-primary);
@@ -130,7 +115,6 @@ body {
 
 .password-input input {
     width: 100%;
-    padding-right: 50px;
 }
 
 .toggle-password {
@@ -419,7 +403,7 @@ body {
         flex-direction: column;
     }
 
-    .auth-logo h1 {
+    .auth-logo span {
         font-size: var(--font-size-xl);
     }
 

@@ -147,7 +147,7 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--surface);
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
@@ -204,6 +204,19 @@
     gap: 1rem;
     padding: 1.5rem;
     border-top: 1px solid var(--border);
+}
+
+.modal-footer .btn {
+    opacity: 1 !important;
+    background: var(--primary) !important;
+}
+
+.modal-footer .btn-secondary {
+    background: var(--text-secondary) !important;
+}
+
+.modal-footer .btn:hover {
+    opacity: 0.9 !important;
 }
 
 /* Form Group */
@@ -309,4 +322,32 @@
         right: 1rem;
         left: 1rem;
     }
+}
+
+
+/* Fix Button Opacity in Modal */
+.modal-footer .btn,
+.modal-footer .btn-primary,
+.modal-footer .btn-secondary {
+    opacity: 1 !important;
+    background-color: var(--primary) !important;
+}
+
+.modal-footer .btn-secondary {
+    background-color: #6B7280 !important;
+}
+
+.modal-footer .btn:hover {
+    opacity: 0.9 !important;
+}
+
+.avatar-actions .btn,
+.avatar-actions .btn-primary {
+    opacity: 1 !important;
+    background-color: var(--primary) !important;
+}
+
+.btn-edit {
+    opacity: 1 !important;
+    background-color: var(--primary) !important;
 }
