@@ -2,24 +2,44 @@ const db = require('../config/db');
 
 // [POST] /api/words - Thêm từ vựng mới vào bộ từ
 const addWord = async (req, res) => {
+    const connection = await db.getConnection();
+    
     try {
         // Lấy các thông tin Client gửi lên
         const { set_id, english_word, meaning, pronunciation, example_sentence } = req.body;
+        const userId = req.user.id; // Lấy user ID từ token
 
-        // Lưu vào database
-        const [result] = await db.query(
+        await connection.beginTransaction();
+
+        // 1. Lưu từ vựng vào bảng words
+        const [result] = await connection.query(
             `INSERT INTO words 
             (set_id, english_word, meaning, pronunciation, example_sentence) 
             VALUES (?, ?, ?, ?, ?)`,
             [set_id, english_word, meaning, pronunciation, example_sentence]
         );
 
+        const newWordId = result.insertId;
+
+        // 2. Tự động insert vào bảng userprogress với status 'NEW' cho user hiện tại
+        await connection.query(
+            `INSERT INTO userprogress 
+            (user_id, word_id, status, memory_level) 
+            VALUES (?, ?, 'NEW', 0)`,
+            [userId, newWordId]
+        );
+
+        await connection.commit();
+
         res.status(201).json({ 
             message: 'Thêm từ vựng thành công!', 
-            wordId: result.insertId 
+            wordId: newWordId 
         });
     } catch (error) {
+        await connection.rollback();
         res.status(500).json({ message: 'Lỗi server', error: error.message });
+    } finally {
+        connection.release();
     }
 };
 

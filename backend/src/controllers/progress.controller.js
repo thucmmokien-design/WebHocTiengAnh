@@ -1,5 +1,68 @@
 const db = require('../config/db');
 
+// =========================
+// HELPER: Tính chuỗi học liên tiếp (streak)
+// =========================
+async function calculateStreak(userId, connection) {
+    try {
+        // 1. Lấy tất cả các ngày đã học (distinct DATE từ started_at), sắp xếp giảm dần
+        const [sessions] = await connection.query(`
+            SELECT DISTINCT DATE(started_at) as study_date
+            FROM studysessions
+            WHERE user_id = ?
+            ORDER BY study_date DESC
+        `, [userId]);
+
+        if (sessions.length === 0) {
+            return 0; // Chưa có buổi học nào
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+
+        // 2. Kiểm tra xem hôm nay có học không
+        const lastStudyDate = sessions[0].study_date;
+        const lastStudyStr = new Date(lastStudyDate).toISOString().split('T')[0];
+
+        // Nếu ngày học gần nhất không phải hôm nay hoặc hôm qua => streak = 0
+        const daysDiff = Math.floor((today - new Date(lastStudyDate)) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff > 1) {
+            return 0; // Đã bỏ lỡ hơn 1 ngày => mất streak
+        }
+
+        // 3. Đếm số ngày liên tiếp
+        let streak = 0;
+        let expectedDate = new Date(today);
+        
+        // Nếu hôm nay chưa học, bắt đầu từ hôm qua
+        if (lastStudyStr !== todayStr) {
+            expectedDate.setDate(expectedDate.getDate() - 1);
+        }
+
+        for (let session of sessions) {
+            const studyDate = new Date(session.study_date);
+            studyDate.setHours(0, 0, 0, 0);
+            const studyDateStr = studyDate.toISOString().split('T')[0];
+            const expectedDateStr = expectedDate.toISOString().split('T')[0];
+
+            if (studyDateStr === expectedDateStr) {
+                streak++;
+                expectedDate.setDate(expectedDate.getDate() - 1); // Lùi về 1 ngày trước
+            } else {
+                break; // Gặp ngày không liên tiếp => dừng
+            }
+        }
+
+        return streak;
+
+    } catch (error) {
+        console.error('Error calculating streak:', error);
+        return 0;
+    }
+}
+
 // [POST] /api/progress/review-batch - Cập nhật kết quả học Flashcard cho CẢ BỘ TỪ
 const reviewWordsBatch = async (req, res) => {
     const connection = await db.getConnection(); 
