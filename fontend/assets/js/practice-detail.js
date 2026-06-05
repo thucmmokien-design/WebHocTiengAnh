@@ -6,6 +6,37 @@ let currentVocabSetId = null;
 let vocabSetData = null;
 let wordsData = [];
 let currentCardIndex = 0; // Index của thẻ hiện tại
+let reviewResults = []; // Lưu kết quả học của user (nhớ/quên)
+let reviewBatch = { set_id: null, reviews: [] }; // Batch để gửi API
+
+// =========================
+// LOAD NAVBAR
+// =========================
+fetch("../components/navbar.html")
+    .then(response => response.text())
+    .then(data => {
+        // render nav
+        document.querySelector(".nav-container").innerHTML = data;
+        const isLogin = localStorage.getItem("nav-container"); 
+        const isLogintwo = localStorage.getItem("page-content");
+        if(isLogin !== "true" || isLogintwo !== "true"){
+            window.location.href ="login.html"
+        }
+        // load nav js
+        const script = document.createElement("script");
+        script.src = "../assets/js/navbar.js";
+        script.onload = function() {
+            // Gọi initNavbar() sau khi navbar.js load xong
+            console.log('📦 navbar.js đã load');
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+            }
+        };
+        document.body.appendChild(script);
+    })
+    .catch(error => {
+        console.error('❌ Lỗi khi load navbar:', error);
+    });
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Wait for navbar to load
@@ -85,6 +116,16 @@ async function loadWords() {
             wordsData = response.data;
             
             if (wordsData.length > 0) {
+                // Khởi tạo reviewBatch
+                reviewBatch = {
+                    set_id: parseInt(currentVocabSetId),
+                    reviews: wordsData.map(word => ({
+                        word_id: word.id,
+                        is_remembered: false // Mặc định chưa nhớ (chưa lật thẻ)
+                    }))
+                };
+                console.log('📝 Initialized review batch:', reviewBatch);
+                
                 displayWords(wordsData);
             } else {
                 wordsList.innerHTML = '<p class="no-words">Bộ từ vựng này chưa có từ nào. Hãy thêm từ mới!</p>';
@@ -138,8 +179,14 @@ function updateNavigationButtons() {
     // Disable prev button if at first card
     prevBtn.disabled = currentCardIndex === 0;
     
-    // Disable next button if at last card
-    nextBtn.disabled = currentCardIndex === wordsData.length - 1;
+    // Change next button text and icon if at last card
+    if (currentCardIndex === wordsData.length - 1) {
+        nextBtn.innerHTML = 'Hoàn thành <i class="fas fa-check"></i>';
+        nextBtn.disabled = false;
+    } else {
+        nextBtn.innerHTML = 'Sau <i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = false;
+    }
 }
 
 // Go to previous card
@@ -155,6 +202,9 @@ function nextCard() {
     if (currentCardIndex < wordsData.length - 1) {
         currentCardIndex++;
         showCurrentCard();
+    } else {
+        // Đã đến thẻ cuối cùng - gửi kết quả học tập
+        submitReviewBatch();
     }
 }
 
@@ -200,7 +250,20 @@ function createWordCard(word, index) {
 
 // Flip Flashcard
 function flipCard(cardElement) {
+    const wasFlipped = cardElement.classList.contains('flipped');
     cardElement.classList.toggle('flipped');
+    
+    // Nếu thẻ đang được lật (từ front sang back)
+    if (!wasFlipped) {
+        // Đánh dấu từ này là đã nhớ
+        const currentWord = wordsData[currentCardIndex];
+        const reviewIndex = reviewBatch.reviews.findIndex(r => r.word_id === currentWord.id);
+        
+        if (reviewIndex !== -1) {
+            reviewBatch.reviews[reviewIndex].is_remembered = true;
+            console.log(`✅ Marked word ${currentWord.english_word} (ID: ${currentWord.id}) as remembered`);
+        }
+    }
 }
 
 // Play Audio (Text-to-Speech)
@@ -220,6 +283,37 @@ function showError(message) {
     const errorMessage = document.getElementById('error-message');
     errorMessage.querySelector('p').textContent = message;
     errorMessage.style.display = 'block';
+}
+
+// =========================
+// SUBMIT REVIEW BATCH
+// =========================
+
+async function submitReviewBatch() {
+    try {
+        const token = auth.getToken();
+        if (!token) {
+            alert('Vui lòng đăng nhập!');
+            return;
+        }
+
+        console.log('📤 Submitting review batch:', reviewBatch);
+
+        const response = await api.post('/progress/review-batch', reviewBatch, token);
+
+        console.log('✅ Review batch submitted successfully:', response);
+
+        alert(`🎉 Hoàn thành! Bạn đã học xong bộ từ vựng này.\n\nKết quả: ${reviewBatch.reviews.filter(r => r.is_remembered).length}/${reviewBatch.reviews.length} từ đã nhớ`);
+
+        // Quay lại trang practice
+        setTimeout(() => {
+            window.location.href = 'practice.html';
+        }, 1500);
+
+    } catch (error) {
+        console.error('❌ Error submitting review batch:', error);
+        alert('Không thể lưu kết quả học tập. Vui lòng thử lại!');
+    }
 }
 
 // =========================

@@ -42,10 +42,8 @@ const register = async (req, res) => {
             const progressRecords = defaultWords.map(word => [
                 newUserId,
                 word.id,
-                'LEARNING' // Gắn trạng thái mặc định là đang học
+                'NEW' 
             ]);
-
-            // Bơm toàn bộ vào bảng Tiến trình học (UserProgress)
             await db.query(
                 'INSERT INTO userprogress (user_id, word_id, status) VALUES ?',
                 [progressRecords]

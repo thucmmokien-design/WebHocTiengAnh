@@ -1,154 +1,229 @@
 const db = require('../config/db');
 
-// [GET] /api/stats/overview - Lấy tổng quan thống kê và thành tích
-const getLearningStats = async (req, res) => {
+// =========================
+// HELPER: Tính chuỗi học liên tiếp (streak)
+// =========================
+async function calculateStreak(userId, connection) {
     try {
-        const userId = req.user.id;
+        // 1. Lấy tất cả các ngày đã học (distinct DATE từ started_at), sắp xếp giảm dần
+        const [sessions] = await connection.query(`
+            SELECT DISTINCT DATE(started_at) as study_date
+            FROM studysessions
+            WHERE user_id = ?
+            ORDER BY study_date DESC
+        `, [userId]);
 
-        // 1. Lấy thông tin XP và tên của User từ bảng Users
-        const [userResult] = await db.query(
-            'SELECT full_name, xp FROM Users WHERE id = ?', 
-            [userId]
-        );
-        if (userResult.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
+        if (sessions.length === 0) {
+            return 0; // Chưa có buổi học nào
         }
-        const { full_name, xp } = userResult[0];
 
-        // 2. Thống kê số lượng từ theo từng trạng thái (LEARNING, REVIEWING, MASTERED)
-        // Sử dụng GROUP BY và COUNT để MySQL tự gom nhóm và đếm số lượng
-        const [statusResult] = await db.query(
-            `SELECT status, COUNT(*) as count 
-             FROM UserProgress 
-             WHERE user_id = ? 
-             GROUP BY status`,
-            [userId]
-        );
-
-        // Khởi tạo object chứa số liệu mặc định ban đầu là 0
-        const wordStats = {
-            total_learned: 0,
-            learning: 0,
-            reviewing: 0,
-            mastered: 0
-        };
-
-        // Duyệt qua kết quả từ DB để đổ số liệu vào object
-        statusResult.forEach(row => {
-            const count = parseInt(row.count);
-            wordStats.total_learned += count; // Tổng số từ đã từng đụng vào
-            
-            if (row.status === 'LEARNING') wordStats.learning = count;
-            if (row.status === 'REVIEWING') wordStats.reviewing = count;
-            if (row.status === 'MASTERED') wordStats.mastered = count;
-        });
-        // --- BẮT ĐẦU: THUẬT TOÁN TÍNH STREAK (CHUỖI NGÀY HỌC) ---
-        // Lấy danh sách các ngày học (chỉ lấy phần Ngày, bỏ phần Giờ/Phút) sắp xếp từ gần nhất đến xa nhất
-        const [datesResult] = await db.query(
-            `SELECT DISTINCT DATE(last_reviewed_at) as study_date 
-             FROM UserProgress 
-             WHERE user_id = ? AND last_reviewed_at IS NOT NULL
-             ORDER BY study_date DESC`,
-            [userId]
-        );
-
-        let currentStreak = 0;
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Đưa mốc thời gian về 00:00:00 của ngày hôm nay
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
 
+        // 2. Kiểm tra xem hôm nay có học không
+        const lastStudyDate = sessions[0].study_date;
+        const lastStudyStr = new Date(lastStudyDate).toISOString().split('T')[0];
+
+        // Nếu ngày học gần nhất không phải hôm nay hoặc hôm qua => streak = 0
+        const daysDiff = Math.floor((today - new Date(lastStudyDate)) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff > 1) {
+            return 0; // Đã bỏ lỡ hơn 1 ngày => mất streak
+        }
+
+        // 3. Đếm số ngày liên tiếp
+        let streak = 0;
         let expectedDate = new Date(today);
-        let isFirstRow = true;
+        
+        // Nếu hôm nay chưa học, bắt đầu từ hôm qua
+        if (lastStudyStr !== todayStr) {
+            expectedDate.setDate(expectedDate.getDate() - 1);
+        }
 
-        for (let row of datesResult) {
-            const studyDate = new Date(row.study_date);
+        for (let session of sessions) {
+            const studyDate = new Date(session.study_date);
             studyDate.setHours(0, 0, 0, 0);
+            const studyDateStr = studyDate.toISOString().split('T')[0];
+            const expectedDateStr = expectedDate.toISOString().split('T')[0];
 
-            if (isFirstRow) {
-                // Kiểm tra dòng đầu tiên (ngày học gần nhất)
-                if (studyDate.getTime() === today.getTime()) {
-                    // Có học hôm nay
-                    currentStreak++;
-                    expectedDate.setDate(today.getDate() - 1); // Tiếp theo phải check hôm qua
-                } else if (studyDate.getTime() === today.getTime() - 86400000) {
-                    // Không học hôm nay, nhưng hôm qua có học (chuỗi chưa bị đứt)
-                    currentStreak++;
-                    expectedDate.setDate(today.getDate() - 2); // Tiếp theo phải check hôm kia
-                } else {
-                    // Bỏ học quá 1 ngày -> Chuỗi đứt, dừng luôn
-                    break; 
-                }
-                isFirstRow = false;
+            if (studyDateStr === expectedDateStr) {
+                streak++;
+                expectedDate.setDate(expectedDate.getDate() - 1); // Lùi về 1 ngày trước
             } else {
-                // Các dòng tiếp theo cứ lùi lùi dần về quá khứ
-                if (studyDate.getTime() === expectedDate.getTime()) {
-                    currentStreak++;
-                    expectedDate.setDate(expectedDate.getDate() - 1);
-                } else {
-                    break; // Sai lệch ngày -> Đứt chuỗi
-                }
+                break; // Gặp ngày không liên tiếp => dừng
             }
         }
 
-        // 3. LOGIC TỰ ĐỘNG TÍNH THÀNH TÍCH (ACHIEVEMENTS) TRÊN RAM
-        // Định nghĩa các mốc danh hiệu mà không cần lưu vào Database
-        const achievements = [];
-
-        // Hệ thống danh hiệu dựa trên điểm kinh nghiệm (XP)
-        if (xp >= 10) {
-            achievements.push({
-                title: "Khởi Đầu Nan",
-                description: "Ghi được những điểm số kinh nghiệm đầu tiên",
-                unlocked: true
-            });
-        }
-        if (xp >= 100) {
-            achievements.push({
-                title: "Chiến Binh Chăm Chỉ",
-                description: "Tích lũy đạt cột mốc 100 XP",
-                unlocked: true
-            });
-        }
-        if (xp >= 500) {
-            achievements.push({
-                title: "Thần Đèn Từ Vựng",
-                description: "Cán mốc đại cao thủ với 500 XP",
-                unlocked: true
-            });
-        }
-
-        // Hệ thống danh hiệu dựa trên số từ đã học thuộc làu (MASTERED)
-        if (wordStats.mastered >= 1) {
-            achievements.push({
-                title: "Vạn Sự Khởi Đầu",
-                description: "Học thuộc làu hoàn toàn 1 từ vựng",
-                unlocked: true
-            });
-        }
-        if (wordStats.mastered >= 10) {
-            achievements.push({
-                title: "Bộ Óc Siêu Phàm",
-                description: "Học thuộc làu hoàn toàn 10 từ vựng",
-                unlocked: true
-            });
-        }
-
-        // 4. Trả toàn bộ cục dữ liệu tổng hợp về cho Client
-        res.status(200).json({
-            user: {
-                full_name: full_name,
-                current_xp: xp
-            },
-            learning_progress: {
-                ...wordStats,
-                current_streak: currentStreak // <--- THÊM DÒNG NÀY VÀO ĐÂY
-            },
-            achievements: achievements,
-            total_achievements_unlocked: achievements.length
-        });
+        return streak;
 
     } catch (error) {
+        console.error('Error calculating streak:', error);
+        return 0;
+    }
+}
+
+// [GET] /api/stats/streak - Lấy thông tin chuỗi học liên tiếp của user
+const getUserStreak = async (req, res) => {
+    const connection = await db.getConnection();
+    
+    try {
+        const userId = req.user.id;
+        
+        // Lấy current_streak từ database
+        const [users] = await connection.query(
+            'SELECT current_streak FROM users WHERE id = ?',
+            [userId]
+        );
+        
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
+        }
+        
+        // Tính lại streak để đảm bảo chính xác
+        const calculatedStreak = await calculateStreak(userId, connection);
+        
+        // Cập nhật nếu khác
+        if (calculatedStreak !== users[0].current_streak) {
+            await connection.query(
+                'UPDATE users SET current_streak = ? WHERE id = ?',
+                [calculatedStreak, userId]
+            );
+        }
+        
+        // Lấy thông tin chi tiết về các ngày đã học
+        const [studyDays] = await connection.query(`
+            SELECT DATE(started_at) as study_date, 
+                   COUNT(*) as sessions_count,
+                   SUM(correct_answers) as total_correct,
+                   SUM(total_questions) as total_questions
+            FROM studysessions
+            WHERE user_id = ?
+            GROUP BY DATE(started_at)
+            ORDER BY study_date DESC
+            LIMIT 30
+        `, [userId]);
+        
+        res.status(200).json({
+            current_streak: calculatedStreak,
+            study_days: studyDays,
+            message: calculatedStreak > 0 
+                ? `Tuyệt vời! Bạn đã học ${calculatedStreak} ngày liên tiếp! 🔥` 
+                : 'Hãy bắt đầu chuỗi học mới hôm nay!'
+        });
+        
+    } catch (error) {
         res.status(500).json({ message: 'Lỗi server', error: error.message });
+    } finally {
+        connection.release();
     }
 };
 
-module.exports = { getLearningStats };
+// [GET] /api/stats/words-learned - Đếm tổng số từ vựng đã học (status != 'NEW')
+const getTotalWordsLearned = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Đếm số từ có status khác 'NEW'
+        const [result] = await db.query(`
+            SELECT 
+                COUNT(*) as total_words_learned,
+                SUM(CASE WHEN status = 'LEARNING' THEN 1 ELSE 0 END) as learning,
+                SUM(CASE WHEN status = 'REVIEWING' THEN 1 ELSE 0 END) as reviewing,
+                SUM(CASE WHEN status = 'MASTERED' THEN 1 ELSE 0 END) as mastered
+            FROM userprogress
+            WHERE user_id = ? AND status != 'NEW'
+        `, [userId]);
+        
+        const stats = result[0];
+        
+        res.status(200).json({
+            success: true,
+            data: {
+                total_words_learned: parseInt(stats.total_words_learned) || 0,
+                learning: parseInt(stats.learning) || 0,
+                reviewing: parseInt(stats.reviewing) || 0,
+                mastered: parseInt(stats.mastered) || 0
+            },
+            message: `Bạn đã học được ${stats.total_words_learned || 0} từ vựng!`
+        });
+        
+    } catch (error) {
+        console.error('❌ Error counting words learned:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Lỗi khi đếm số từ đã học', 
+            error: error.message 
+        });
+    }
+};
+
+// [GET] /api/stats/memory-retention - Lấy tỉ lệ ghi nhớ từ cột score
+const getMemoryRetention = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Tính tỉ lệ ghi nhớ trung bình từ cột score và lấy thống kê chi tiết
+        const [result] = await db.query(`
+            SELECT 
+                COUNT(*) as total_sessions,
+                ROUND(AVG(score), 2) as avg_score,
+                MIN(score) as min_score,
+                MAX(score) as max_score,
+                SUM(correct_answers) as total_correct,
+                SUM(total_questions) as total_questions
+            FROM studysessions
+            WHERE user_id = ?
+        `, [userId]);
+        
+        const stats = result[0];
+        
+        // Tính accuracy (độ chính xác) = tổng câu đúng / tổng câu hỏi
+        const accuracy = stats.total_questions > 0 
+            ? Math.round((stats.total_correct / stats.total_questions) * 100)
+            : 0;
+        
+        // Lấy top 5 buổi học gần nhất
+        const [recentSessions] = await db.query(`
+            SELECT 
+                session_type,
+                score,
+                correct_answers,
+                total_questions,
+                DATE_FORMAT(started_at, '%Y-%m-%d %H:%i') as study_time
+            FROM studysessions
+            WHERE user_id = ?
+            ORDER BY started_at DESC
+            LIMIT 5
+        `, [userId]);
+        
+        res.status(200).json({
+            success: true,
+            data: {
+                memory_retention_rate: parseFloat(stats.avg_score) || 0,
+                accuracy: accuracy,
+                total_sessions: parseInt(stats.total_sessions) || 0,
+                min_score: parseFloat(stats.min_score) || 0,
+                max_score: parseFloat(stats.max_score) || 0,
+                total_correct: parseInt(stats.total_correct) || 0,
+                total_questions: parseInt(stats.total_questions) || 0,
+                recent_sessions: recentSessions
+            },
+            message: `Tỉ lệ ghi nhớ trung bình của bạn là ${stats.avg_score || 0}%`
+        });
+        
+    } catch (error) {
+        console.error('❌ Error getting memory retention:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Lỗi khi lấy tỉ lệ ghi nhớ', 
+            error: error.message 
+        });
+    }
+};
+
+module.exports = { 
+    getUserStreak,
+    getTotalWordsLearned,
+    getMemoryRetention 
+};

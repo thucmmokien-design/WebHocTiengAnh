@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordlyEN</title>
+    <title>WordlyEN - Trang Chủ</title>
     <link rel="icon" href="..//img/anhmuctieu.png">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -16,9 +16,62 @@
     <div class="nav-container"></div>
     
     <main class="page-home">
-        <h1>Trang Chủ</h1>
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <h1 class="welcome-title">Xin chào, <span id="userName">...</span> 👋</h1>
+            <p class="welcome-subtitle">Hãy cùng bắt đầu hành trình học tiếng Anh hôm nay!</p>
+        </section>
+
+        <!-- Stats Cards Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <!-- Streak Card -->
+                <div class="stat-card streak-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h2 class="stat-value" id="streakValue">--</h2>
+                        <p class="stat-label">Chuỗi ngày (Streak)</p>
+                        <p class="stat-message" id="streakMessage">Đang tải...</p>
+                    </div>
+                </div>
+
+                <!-- Words Learned Card -->
+                <div class="stat-card words-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h2 class="stat-value" id="wordsValue">--</h2>
+                        <p class="stat-label">Từ vựng đã học</p>
+                        <div class="words-breakdown">
+                            <span class="badge learning">Đang học: <strong id="learningCount">0</strong></span>
+                            <span class="badge reviewing">Ôn tập: <strong id="reviewingCount">0</strong></span>
+                            <span class="badge mastered">Thành thạo: <strong id="masteredCount">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Retention Card -->
+                <div class="stat-card memory-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h2 class="stat-value" id="memoryValue">--%</h2>
+                        <p class="stat-label">Tỉ lệ ghi nhớ</p>
+                        <div class="memory-details">
+                            <p>Độ chính xác: <strong id="accuracyValue">--%</strong></p>
+                            <p>Số chủ đề đã học: <strong id="sessionsCount">0</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <script src="../assets/js/api.js"></script>
     <script src="../assets/js/home.js"></script>
     <script src="../assets/js/navbar.js"></script>
 </body>
