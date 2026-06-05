@@ -136,7 +136,7 @@ const uploadAvatar = async (req, res) => {
 
         // Cập nhật avatar_url vào database
         await db.query(
-            'UPDATE Users SET avatar_url = ? WHERE id = ?',
+            'UPDATE users SET avatar_url = ? WHERE id = ?',
             [avatarUrl, userId]
         );
 

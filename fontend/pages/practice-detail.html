@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Tập - WordlyEN</title>
+    <link rel="icon" href="../img/anhmuctieu.png">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/practice.css">
+</head>
+<body>
+    <!-- Navbar Container -->
+    <div class="nav-container"></div>
+    
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="practice-detail-container">
+            <!-- Header -->
+            <div class="practice-detail-header">
+                <button class="btn-back" onclick="window.location.href='practice.html'">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Đang tải từ vựng...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="error-message" style="display: none;">
+                <p></p>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div id="navigationControls" class="navigation-controls">
+                <button id="prevBtn" class="nav-btn" onclick="previousCard()">
+                    <i class="fas fa-chevron-left"></i> Trước
+                </button>
+                <div class="progress-info">
+                    <span id="progressInfo">0 / 0</span>
+                </div>
+                <button id="nextBtn" class="nav-btn" onclick="nextCard()">
+                    Sau <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Words List (Single Card) -->
+            <div id="words-list" class="words-list single-card-mode">
+                <!-- Danh sách từ vựng sẽ được load động -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Keyboard Hints - Fixed at bottom -->
+    <div class="keyboard-hints-bottom">
+        <span><kbd>←</kbd> Trước</span>
+        <span><kbd>Space</kbd> Lật thẻ</span>
+        <span><kbd>→</kbd> Sau</span>
+    </div>
+
+    <!-- Modal: Word List (for Edit/Delete) -->
+    <div id="wordListModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-list"></i> Danh Sách Từ Vựng</h3>
+                <button class="modal-close" onclick="closeWordListModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="wordListContainer" class="word-list-container">
+                    <!-- Danh sách từ sẽ được load động -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Word -->
+    <div id="addWordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Thêm Từ Vựng Mới</h3>
+                <button class="modal-close" onclick="closeAddWordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addWordForm">
+                    <div class="form-group">
+                        <label for="wordEnglish">Từ tiếng Anh *</label>
+                        <input type="text" id="wordEnglish" class="form-input" placeholder="Nhập từ tiếng Anh" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wordMeaning">Nghĩa tiếng Việt *</label>
+                        <input type="text" id="wordMeaning" class="form-input" placeholder="Nhập nghĩa tiếng Việt" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wordPronunciation">Phiên âm</label>
+                        <input type="text" id="wordPronunciation" class="form-input" placeholder="/ˈeksəmpl/">
+                    </div>
+                    <div class="form-group">
+                        <label for="wordExample">Câu ví dụ</label>
+                        <textarea id="wordExample" class="form-input" placeholder="This is an example sentence." rows="3"></textarea>
+                    </div>
+                    <div id="addWordError" class="error-message" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddWordModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" id="saveWordBtn" class="btn btn-primary" onclick="saveNewWord()">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Word -->
+    <div id="editWordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Sửa Từ Vựng</h3>
+                <button class="modal-close" onclick="closeEditWordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editWordForm">
+                    <input type="hidden" id="editWordId">
+                    <div class="form-group">
+                        <label for="editWordEnglish">Từ tiếng Anh *</label>
+                        <input type="text" id="editWordEnglish" class="form-input" placeholder="Nhập từ tiếng Anh" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editWordMeaning">Nghĩa tiếng Việt *</label>
+                        <input type="text" id="editWordMeaning" class="form-input" placeholder="Nhập nghĩa tiếng Việt" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editWordPronunciation">Phiên âm</label>
+                        <input type="text" id="editWordPronunciation" class="form-input" placeholder="/ˈeksəmpl/">
+                    </div>
+                    <div class="form-group">
+                        <label for="editWordExample">Câu ví dụ</label>
+                        <textarea id="editWordExample" class="form-input" placeholder="This is an example sentence." rows="3"></textarea>
+                    </div>
+                    <div id="editWordError" class="error-message" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteWord()">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditWordModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" id="updateWordBtn" class="btn btn-primary" onclick="updateWord()">
+                    <i class="fas fa-save"></i> Cập nhật
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/home.js"></script>
+    <script src="../assets/js/navbar.js"></script>
+    <script src="../assets/js/practice-detail.js"></script>
+</body>
+</html>

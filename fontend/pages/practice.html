@@ -3,22 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordlyEN</title>
-    <link rel="icon" href="..//img/anhmuctieu.png">
+    <title>Luyện Tập - WordlyEN</title>
+    <link rel="icon" href="../img/anhmuctieu.png">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/practice.css">
 </head>
 <body>
+    <!-- Navbar Container -->
     <div class="nav-container"></div>
     
+    <!-- Main Content -->
     <main class="page-content">
-        <h1>Luyện Tập</h1>
+        <div class="practice-container">
+            <h1 class="practice-title">Chọn Bộ Từ Vựng Để Luyện Tập</h1>
+            <p class="practice-subtitle">Chọn một bộ từ vựng để bắt đầu học và luyện tập</p>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="error-message" style="display: none;">
+                <p></p>
+            </div>
+
+            <!-- Vocab Sets Grid -->
+            <div id="vocab-sets-grid" class="vocab-sets-grid">
+                <!-- Các bộ từ vựng sẽ được load động từ API -->
+            </div>
+        </div>
     </main>
 
+    <!-- Modal: Add New Vocab Set -->
+    <div id="addVocabSetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Thêm Bộ Từ Vựng Mới</h3>
+                <button class="modal-close" onclick="closeAddVocabSetModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newVocabSetForm">
+                    <div class="form-group">
+                        <label for="vocabTitle">Tiêu đề <span style="color: red;">*</span></label>
+                        <input type="text" id="vocabTitle" class="form-input" placeholder="Nhập tiêu đề bộ từ vựng" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vocabDescription">Mô tả <span style="color: red;">*</span></label>
+                        <textarea id="vocabDescription" class="form-input" rows="4" placeholder="Nhập mô tả về bộ từ vựng" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ảnh đại diện</label>
+                        <div class="avatar-upload-section">
+                            <div class="avatar-preview-vocab" id="vocabAvatarPreview">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="avatar-upload-actions">
+                                <input type="file" id="vocabAvatarInput" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-upload" onclick="document.getElementById('vocabAvatarInput').click()">
+                                    <i class="fas fa-upload"></i> Chọn ảnh
+                                </button>
+                                <p class="avatar-note">JPG, PNG, GIF (Tối đa 5MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="addVocabError" class="error-message" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddVocabSetModal()">Hủy</button>
+                <button class="btn btn-primary" id="saveVocabBtn" onclick="saveNewVocabSet()">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Vocab Set -->
+    <div id="editVocabSetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sửa Bộ Từ Vựng</h3>
+                <button class="modal-close" onclick="closeEditVocabSetModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editVocabSetForm">
+                    <input type="hidden" id="editVocabId">
+                    <div class="form-group">
+                        <label for="editVocabTitle">Tiêu đề <span style="color: red;">*</span></label>
+                        <input type="text" id="editVocabTitle" class="form-input" placeholder="Nhập tiêu đề bộ từ vựng" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editVocabDescription">Mô tả <span style="color: red;">*</span></label>
+                        <textarea id="editVocabDescription" class="form-input" rows="4" placeholder="Nhập mô tả về bộ từ vựng" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ảnh đại diện</label>
+                        <div class="avatar-upload-section">
+                            <div class="avatar-preview-vocab" id="editVocabAvatarPreview">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="avatar-upload-actions">
+                                <input type="file" id="editVocabAvatarInput" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-upload" onclick="document.getElementById('editVocabAvatarInput').click()">
+                                    <i class="fas fa-upload"></i> Đổi ảnh
+                                </button>
+                                <p class="avatar-note">JPG, PNG, GIF (Tối đa 5MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="editVocabError" class="error-message" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditVocabSetModal()">Hủy</button>
+                <button class="btn btn-primary" id="updateVocabBtn" onclick="updateVocabSet()">
+                    <i class="fas fa-save"></i> Cập nhật
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Manage Words -->
+    <div id="manageWordsModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Quản Lý Từ Vựng: <span id="manageWordsTitle"></span></h3>
+                <button class="modal-close" onclick="closeManageWordsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1rem;">
+                    <button class="btn btn-primary" onclick="openAddWordModalFromManage()">
+                        <i class="fas fa-plus"></i> Thêm từ mới
+                    </button>
+                </div>
+                <div id="manageWordsContainer" class="word-list-container">
+                    <!-- Danh sách từ sẽ được load động -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Word (from manage) -->
+    <div id="addWordModalFromManage" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Thêm Từ Vựng Mới</h3>
+                <button class="modal-close" onclick="closeAddWordModalFromManage()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addWordFormManage">
+                    <div class="form-group">
+                        <label for="wordEnglishManage">Từ tiếng Anh *</label>
+                        <input type="text" id="wordEnglishManage" class="form-input" placeholder="Nhập từ tiếng Anh" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wordMeaningManage">Nghĩa tiếng Việt *</label>
+                        <input type="text" id="wordMeaningManage" class="form-input" placeholder="Nhập nghĩa tiếng Việt" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wordPronunciationManage">Phiên âm</label>
+                        <input type="text" id="wordPronunciationManage" class="form-input" placeholder="/ˈeksəmpl/">
+                    </div>
+                    <div class="form-group">
+                        <label for="wordExampleManage">Câu ví dụ</label>
+                        <textarea id="wordExampleManage" class="form-input" placeholder="This is an example sentence." rows="3"></textarea>
+                    </div>
+                    <div id="addWordErrorManage" class="error-message" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddWordModalFromManage()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" id="saveWordBtnManage" class="btn btn-primary" onclick="saveNewWordFromManage()">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Word (from manage) -->
+    <div id="editWordModalFromManage" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Sửa Từ Vựng</h3>
+                <button class="modal-close" onclick="closeEditWordModalFromManage()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editWordFormManage">
+                    <input type="hidden" id="editWordIdManage">
+                    <div class="form-group">
+                        <label for="editWordEnglishManage">Từ tiếng Anh *</label>
+                        <input type="text" id="editWordEnglishManage" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editWordMeaningManage">Nghĩa tiếng Việt *</label>
+                        <input type="text" id="editWordMeaningManage" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editWordPronunciationManage">Phiên âm</label>
+                        <input type="text" id="editWordPronunciationManage" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="editWordExampleManage">Câu ví dụ</label>
+                        <textarea id="editWordExampleManage" class="form-input" rows="3"></textarea>
+                    </div>
+                    <div id="editWordErrorManage" class="error-message" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteWordFromManage()">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditWordModalFromManage()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" id="updateWordBtnManage" class="btn btn-primary" onclick="updateWordFromManage()">
+                    <i class="fas fa-save"></i> Cập nhật
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
     <script src="../assets/js/home.js"></script>
     <script src="../assets/js/navbar.js"></script>
     <script src="../assets/js/practice.js"></script>

@@ -28,11 +28,11 @@ const register = async (req, res) => {
 
         // 2. --- BẮT ĐẦU: TỰ ĐỘNG THÊM BỘ TỪ MẶC ĐỊNH ---
         // Giả sử trong DB, các bộ từ cơ bản nhập môn có ID là 1, 2, 3
-        const defaultSetIds = [1, 2, 3]; 
+        const defaultSetIds = [1, 2, 3, 4 ,5]; 
 
         // Lấy tất cả id từ vựng thuộc các bộ mặc định này
         const [defaultWords] = await db.query(
-            'SELECT id FROM Words WHERE set_id IN (?)',
+            'SELECT id FROM words WHERE set_id IN (?)',
             [defaultSetIds]
         );
 
@@ -47,7 +47,7 @@ const register = async (req, res) => {
 
             // Bơm toàn bộ vào bảng Tiến trình học (UserProgress)
             await db.query(
-                'INSERT INTO UserProgress (user_id, word_id, status) VALUES ?',
+                'INSERT INTO userprogress (user_id, word_id, status) VALUES ?',
                 [progressRecords]
             );
         }

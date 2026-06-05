@@ -147,7 +147,7 @@
 }
 
 .modal-content {
-    background: var(--surface);
+    background: var(--color-neutral-50);
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
@@ -266,7 +266,7 @@
     top: 2rem;
     right: 2rem;
     background: var(--success);
-    color: white;
+    color: rgb(32, 156, 80);
     padding: 1rem 1.5rem;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -330,7 +330,7 @@
 .modal-footer .btn-primary,
 .modal-footer .btn-secondary {
     opacity: 1 !important;
-    background-color: var(--primary) !important;
+    background-color: var(--color-secondary) !important;
 }
 
 .modal-footer .btn-secondary {
@@ -344,10 +344,10 @@
 .avatar-actions .btn,
 .avatar-actions .btn-primary {
     opacity: 1 !important;
-    background-color: var(--primary) !important;
+    background-color: var(--color-secondary) !important;
 }
 
 .btn-edit {
     opacity: 1 !important;
-    background-color: var(--primary) !important;
+    background-color: var(---color-secondary) !important;
 }

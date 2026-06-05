@@ -1,38 +1,57 @@
 // =========================
-// API CONFIGURATION
+// WAIT FOR DOM
 // =========================
-const API_BASE_URL = 'http://localhost:3000/api';
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ DOM loaded, initializing auth page...');
+    initAuthPage();
+});
+
+function initAuthPage() {
+    // Initialize sliders
+    initSlider();
+    
+    // Initialize forms
+    initLoginForm();
+    initRegisterForm();
+}
 
 // =========================
 // AUTO SLIDER
 // =========================
-let currentSlideIndex = 0;
-const slides = document.querySelectorAll('.slide');
-const dots = document.querySelectorAll('.dot');
+function initSlider() {
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
 
-function showSlide(index) {
-    // Xóa active khỏi tất cả
-    slides.forEach(slide => slide.classList.remove('active'));
-    dots.forEach(dot => dot.classList.remove('active'));
-    
+    if (slides.length === 0) {
+        console.log('⚠️ No slides found');
+        return;
+    }
 
-    // Thêm active cho slide hiện tại
-    slides[index].classList.add('active');
-    dots[index].classList.add('active');
-}
+    console.log('🎠 Initializing slider with', slides.length, 'slides');
 
-function nextSlide() {
-    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-    showSlide(currentSlideIndex);
-}
+    function showSlide(index) {
+        // Xóa active khỏi tất cả
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        // Thêm active cho slide hiện tại
+        slides[index].classList.add('active');
+        dots[index].classList.add('active');
+    }
 
-function currentSlide(index) {
-    currentSlideIndex = index;
-    showSlide(currentSlideIndex);
-}
+    function nextSlide() {
+        currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+        showSlide(currentSlideIndex);
+    }
 
-// Auto slide mỗi 4 giây
-if (slides.length > 0) {
+    // Make currentSlide available globally for onclick
+    window.currentSlide = function(index) {
+        currentSlideIndex = index;
+        showSlide(currentSlideIndex);
+    }
+
+    // Auto slide mỗi 4 giây
     setInterval(nextSlide, 4000);
 }
 
@@ -74,16 +93,36 @@ function hideMessages() {
 // =========================
 // LOGIN FORM
 // =========================
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
+function initLoginForm() {
+    console.log('🔍 Tìm kiếm form login...');
+    const loginForm = document.getElementById('loginForm');
+    console.log('📝 Login form:', loginForm);
+
+    if (!loginForm) {
+        console.log('⚠️ Không tìm thấy login form');
+        return;
+    }
+
+    console.log('✅ Tìm thấy login form, đang gắn event listener');
+    
+    // Get API_BASE_URL from window (set by api.js)
+    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000/api';
+    
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        console.log('🚀 Form đã submit!');
+        
         hideMessages();
         
         // Lấy dữ liệu form
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const remember = document.getElementById('remember').checked;
+        
+        console.log('📧 Email:', email);
+        console.log('🔐 Password:', password ? '***' : 'empty');
+        console.log('💾 Remember:', remember);
         
         // Validate
         if (!email || !password) {
@@ -98,6 +137,9 @@ if (loginForm) {
         
         try {
             // Gọi API login
+            console.log('🔄 Đang gọi API login:', `${API_BASE_URL}/auth/login`);
+            console.log('📤 Dữ liệu gửi:', { email, password: '***' });
+            
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -106,7 +148,9 @@ if (loginForm) {
                 body: JSON.stringify({ email, password })
             });
             
+            console.log('📥 Response status:', response.status);
             const data = await response.json();
+            console.log('📥 Response data:', data);
             
             if (response.ok) {
                 // Đăng nhập thành công
@@ -122,10 +166,15 @@ if (loginForm) {
                 }
                 localStorage.setItem("nav-container","true");
                 localStorage.setItem("page-content", "true");
+                
+                console.log('💾 Token đã lưu:', remember ? 'localStorage' : 'sessionStorage');
+                
                 // Chuyển đến trang chủ
+                console.log('🚀 Chuyển đến trang home .html');
                 window.location.href = 'home .html';
             } else {
                 // Đăng nhập thất bại
+                console.error('❌ Đăng nhập thất bại:', data.message);
                 showError(data.message || 'Email hoặc mật khẩu không đúng!');
             }
         } catch (error) {
@@ -142,10 +191,22 @@ if (loginForm) {
 // =========================
 // REGISTER FORM
 // =========================
-const registerForm = document.getElementById('registerForm');
-if (registerForm) {
+function initRegisterForm() {
+    const registerForm = document.getElementById('registerForm');
+    
+    if (!registerForm) {
+        console.log('⚠️ Không tìm thấy register form');
+        return;
+    }
+
+    console.log('✅ Tìm thấy register form');
+    
+    // Get API_BASE_URL from window (set by api.js)
+    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000/api';
+    
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        e.stopPropagation();
         hideMessages();
         
         // Lấy dữ liệu form

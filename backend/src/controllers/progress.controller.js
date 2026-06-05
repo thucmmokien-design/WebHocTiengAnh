@@ -8,7 +8,7 @@ const reviewWord = async (req, res) => {
 
         // 1. Kiểm tra xem user đã có tiến trình với từ này chưa
         const [existingProgress] = await db.query(
-            'SELECT * FROM UserProgress WHERE user_id = ? AND word_id = ?',
+            'SELECT * FROM userprogress WHERE user_id = ? AND word_id = ?',
             [userId, word_id]
         );
 
@@ -32,7 +32,7 @@ const reviewWord = async (req, res) => {
 
             // Cập nhật record cũ
             await db.query(
-                `UPDATE UserProgress 
+                `UPDATE userprogress 
                  SET status = ?, memory_level = ?, last_reviewed_at = NOW(), 
                      next_review_date = DATE_ADD(NOW(), INTERVAL ? DAY)
                  WHERE id = ?`,
@@ -46,7 +46,7 @@ const reviewWord = async (req, res) => {
             }
             // Tạo record mới
             await db.query(
-                `INSERT INTO UserProgress 
+                `INSERT INTO userprogress 
                  (user_id, word_id, status, memory_level, last_reviewed_at, next_review_date) 
                  VALUES (?, ?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
                 [userId, word_id, status, memoryLevel, daysToAdd]
@@ -72,8 +72,8 @@ const getDueWords = async (req, res) => {
         // Bổ sung w.pronunciation và w.example_sentence vào câu SELECT
         const [dueWords] = await db.query(`
             SELECT w.id as word_id, w.english_word, w.meaning, w.pronunciation, w.example_sentence, up.status, up.memory_level
-            FROM Words w
-            JOIN UserProgress up ON w.id = up.word_id
+            FROM words w
+            JOIN userprogress up ON w.id = up.word_id
             WHERE up.user_id = ? 
             AND (up.next_review_date IS NULL OR up.next_review_date <= NOW())
             ORDER BY up.next_review_date ASC

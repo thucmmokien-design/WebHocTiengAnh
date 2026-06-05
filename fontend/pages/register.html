@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Register Form -->
-                <form id="registerForm" class="auth-form">
+                <form id="registerForm" class="auth-form" method="post" action="javascript:void(0);">
                     <!-- Email -->
                     <div class="form-group">
                         <label for="email">
@@ -94,9 +94,6 @@
                                 required
                                 minlength="6"
                             >
-                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
 
@@ -115,9 +112,6 @@
                                 autocomplete="new-password"
                                 required
                             >
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
 
@@ -150,6 +144,7 @@
         </div>
     </div>
 
+    <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
 </body>
 </html>
