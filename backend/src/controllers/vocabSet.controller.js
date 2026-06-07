@@ -59,7 +59,7 @@ const updateSet = async (req, res) => {
         const userRole = req.user.role;
 
         // 1. Tìm xem bộ từ này có tồn tại không
-        const [sets] = await db.query('SELECT created_by FROM vocabularysets WHERE id = ?', [setId]);
+        const [sets] = await db.query('SELECT created_by, avatar_url FROM vocabularysets WHERE id = ?', [setId]);
         if (sets.length === 0) {
             return res.status(404).json({ message: 'Không tìm thấy bộ từ vựng!' });
         }
@@ -69,10 +69,13 @@ const updateSet = async (req, res) => {
             return res.status(403).json({ message: 'Bạn không có quyền sửa bộ từ này!' });
         }
 
-        // 3. Thực hiện cập nhật (bao gồm cả avatar_url nếu có)
+        // 3. Giữ nguyên avatar_url cũ nếu không có avatar_url mới được gửi lên
+        const finalAvatarUrl = avatar_url !== undefined ? avatar_url : sets[0].avatar_url;
+
+        // 4. Thực hiện cập nhật
         await db.query(
             'UPDATE vocabularysets SET title = ?, description = ?, avatar_url = ? WHERE id = ?',
-            [title, description, avatar_url || null, setId]
+            [title, description, finalAvatarUrl, setId]
         );
 
         res.status(200).json({ message: 'Cập nhật thông tin bộ từ vựng thành công!' });

@@ -9,6 +9,9 @@ router.get('/streak', verifyToken, statsController.getUserStreak);
 // API: Đếm tổng số từ vựng đã học (status != 'NEW')
 router.get('/words-learned', verifyToken, statsController.getTotalWordsLearned);
 
+// API: Lấy thống kê học tập theo ngày trong tuần
+router.get('/weekly-activity', verifyToken, statsController.getWeeklyActivity);
+
 // API: Lấy tỉ lệ ghi nhớ (memory retention rate) từ cột score
 router.get('/memory-retention', verifyToken, statsController.getMemoryRetention);
 

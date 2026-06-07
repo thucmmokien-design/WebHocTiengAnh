@@ -158,6 +158,72 @@ const getTotalWordsLearned = async (req, res) => {
     }
 };
 
+// [GET] /api/stats/weekly-activity - Lấy thống kê học tập theo ngày trong tuần
+const getWeeklyActivity = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Lấy thống kê theo ngày trong tuần (1=Thứ 2, 7=Chủ nhật)
+        const [result] = await db.query(`
+            SELECT 
+                DAYOFWEEK(started_at) as day_of_week,
+                SUM(correct_answers) as total_words_studied,
+                COUNT(DISTINCT DATE(started_at)) as study_days,
+                ROUND(AVG(score), 2) as avg_score
+            FROM studysessions
+            WHERE user_id = ?
+            GROUP BY DAYOFWEEK(started_at)
+            ORDER BY day_of_week
+        `, [userId]);
+        
+        // Chuyển đổi sang định dạng dễ hiểu (1=Chủ nhật trong MySQL, cần chuyển thành 2-8 = Thứ 2 - CN)
+        const weekDays = [
+            { day: 'Thứ 2', value: 2, total: 0, sessions: 0, avg_score: 0 },
+            { day: 'Thứ 3', value: 3, total: 0, sessions: 0, avg_score: 0 },
+            { day: 'Thứ 4', value: 4, total: 0, sessions: 0, avg_score: 0 },
+            { day: 'Thứ 5', value: 5, total: 0, sessions: 0, avg_score: 0 },
+            { day: 'Thứ 6', value: 6, total: 0, sessions: 0, avg_score: 0 },
+            { day: 'Thứ 7', value: 7, total: 0, sessions: 0, avg_score: 0 },
+            { day: 'Chủ nhật', value: 1, total: 0, sessions: 0, avg_score: 0 }
+        ];
+        
+        // Map dữ liệu từ database vào weekDays
+        result.forEach(row => {
+            const dayIndex = weekDays.findIndex(d => d.value === row.day_of_week);
+            if (dayIndex !== -1) {
+                weekDays[dayIndex].total = parseInt(row.total_words_studied) || 0;
+                weekDays[dayIndex].sessions = parseInt(row.study_days) || 0;
+                weekDays[dayIndex].avg_score = parseFloat(row.avg_score) || 0;
+            }
+        });
+        
+        // Tìm ngày học nhiều nhất
+        const maxWords = Math.max(...weekDays.map(d => d.total));
+        const totalWords = weekDays.reduce((sum, d) => sum + d.total, 0);
+        
+        res.status(200).json({
+            success: true,
+            data: {
+                weekly_stats: weekDays,
+                summary: {
+                    total_words_this_week: totalWords,
+                    most_active_day: weekDays.find(d => d.total === maxWords)?.day || 'Chưa có dữ liệu',
+                    max_words_per_day: maxWords
+                }
+            },
+            message: 'Lấy thống kê tuần thành công!'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error getting weekly activity:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Lỗi khi lấy thống kê tuần', 
+            error: error.message 
+        });
+    }
+};
+
 // [GET] /api/stats/memory-retention - Lấy tỉ lệ ghi nhớ từ cột score
 const getMemoryRetention = async (req, res) => {
     try {
@@ -225,5 +291,6 @@ const getMemoryRetention = async (req, res) => {
 module.exports = { 
     getUserStreak,
     getTotalWordsLearned,
+    getWeeklyActivity,
     getMemoryRetention 
 };

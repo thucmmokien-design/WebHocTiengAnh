@@ -204,7 +204,48 @@ const getWordsForStudy = async (req, res) => {
     }
 };
 
+// [GET] /api/progress/review-words - Lấy tất cả các từ cần ôn tập (đã học nhưng chưa MASTERED)
+const getReviewWords = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Lấy các từ có status khác 'NEW' và khác 'MASTERED'
+        const [words] = await db.query(`
+            SELECT 
+                w.id as word_id, 
+                w.english_word, 
+                w.meaning, 
+                w.pronunciation, 
+                w.example_sentence,
+                up.status,
+                up.memory_level,
+                up.last_reviewed_at,
+                up.next_review_date,
+                vs.title as set_name,
+                vs.id as set_id,
+                vs.avatar_url as set_image
+            FROM userprogress up
+            INNER JOIN words w ON up.word_id = w.id
+            INNER JOIN vocabularysets vs ON w.set_id = vs.id
+            WHERE up.user_id = ? 
+                AND up.status != 'NEW' 
+                AND up.status != 'MASTERED'
+            ORDER BY up.next_review_date ASC, up.last_reviewed_at DESC
+        `, [userId]);
+
+        res.status(200).json({ 
+            total: words.length,
+            message: 'Lấy danh sách từ cần ôn tập thành công',
+            data: words 
+        });
+    } catch (error) {
+        console.error('Error getting review words:', error);
+        res.status(500).json({ message: 'Lỗi server', error: error.message });
+    }
+};
+
 module.exports = { 
     reviewWordsBatch, 
-    getWordsForStudy 
+    getWordsForStudy,
+    getReviewWords
 };

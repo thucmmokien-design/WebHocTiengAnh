@@ -190,8 +190,8 @@ async function saveFullName() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                full_name: newFullName,
-                avatar_url: null // Giữ nguyên avatar hiện tại
+                full_name: newFullName
+                // KHÔNG gửi avatar_url để giữ nguyên avatar hiện tại
             })
         });
 

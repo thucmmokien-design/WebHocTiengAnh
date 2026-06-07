@@ -36,10 +36,19 @@ const updateProfile = async (req, res) => {
             return res.status(400).json({ message: 'Tên không được để trống!' });
         }
 
+        // Lấy thông tin user hiện tại để giữ nguyên avatar_url nếu không có giá trị mới
+        const [currentUser] = await db.query(
+            'SELECT avatar_url FROM users WHERE id = ?',
+            [userId]
+        );
+
+        // Giữ nguyên avatar_url cũ nếu không có avatar_url mới được gửi lên
+        const finalAvatarUrl = avatar_url !== undefined ? avatar_url : currentUser[0].avatar_url;
+
         // Cập nhật vào DB
         await db.query(
             'UPDATE users SET full_name = ?, avatar_url = ? WHERE id = ?',
-            [full_name.trim(), avatar_url || null, userId]
+            [full_name.trim(), finalAvatarUrl, userId]
         );
 
         // Lấy thông tin mới

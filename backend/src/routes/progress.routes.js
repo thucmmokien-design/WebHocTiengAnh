@@ -9,4 +9,7 @@ router.post('/review-batch', verifyToken, progressController.reviewWordsBatch);
 // API: Lấy toàn bộ từ của 1 bộ để học
 router.get('/study-set/:setId', verifyToken, progressController.getWordsForStudy);
 
+// API: Lấy tất cả các từ cần ôn tập (khác NEW và MASTERED)
+router.get('/review-words', verifyToken, progressController.getReviewWords);
+
 module.exports = router;
