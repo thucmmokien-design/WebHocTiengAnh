@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Achievement API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Achievement API</h1>
+        
+        <div>
+            <label>Token (từ localStorage):</label>
+            <input type="text" id="tokenInput" style="width: 100%; padding: 8px; margin: 10px 0;">
+            <button onclick="loadToken()">Load Token từ Login Page</button>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="testGetAchievements()">GET /api/achievements</button>
+            <button onclick="testCheckAchievements()">POST /api/achievements/check</button>
+        </div>
+
+        <h2>📊 Response:</h2>
+        <pre id="output">Chưa có kết quả...</pre>
+    </div>
+
+    <script>
+        function loadToken() {
+            // Thử lấy token từ localStorage
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('tokenInput').value = token;
+                document.getElementById('output').innerHTML = '<span class="success">✅ Token loaded từ localStorage</span>';
+            } else {
+                document.getElementById('output').innerHTML = '<span class="error">❌ Không tìm thấy token. Hãy login trước.</span>';
+            }
+        }
+
+        async function testGetAchievements() {
+            const token = document.getElementById('tokenInput').value;
+            
+            if (!token) {
+                document.getElementById('output').innerHTML = '<span class="error">❌ Vui lòng nhập token</span>';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/achievements', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('output').innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.ok ? '✅' : '❌'}<br>
+                    <strong>Response:</strong><br>
+                    ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testCheckAchievements() {
+            const token = document.getElementById('tokenInput').value;
+            
+            if (!token) {
+                document.getElementById('output').innerHTML = '<span class="error">❌ Vui lòng nhập token</span>';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/achievements/check', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('output').innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.ok ? '✅' : '❌'}<br>
+                    <strong>Response:</strong><br>
+                    ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Auto load token khi trang load
+        window.onload = loadToken;
+    </script>
+</body>
+</html>

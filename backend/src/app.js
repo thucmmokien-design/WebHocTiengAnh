@@ -36,6 +36,9 @@ app.use('/api/users', userRouter);
 const practiceRouter = require('./routes/practice.routes');
 app.use('/api/practice', practiceRouter);
 
+const achievementRouter = require('./routes/achievement.routes');
+app.use('/api/achievements', achievementRouter);
+
 
 const PORT = process.env.PORT || 3000;
 

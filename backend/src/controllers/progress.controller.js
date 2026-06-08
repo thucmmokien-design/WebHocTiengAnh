@@ -1,5 +1,84 @@
 const db = require('../config/db');
 
+// Danh sách thành tích
+const ACHIEVEMENTS_CONFIG = [
+    // Mốc từ vựng (theo tổng số từ)
+    { name: 'Học Thuộc 20 Từ Vựng', description: 'Bước khởi đầu trên hành trình học từ vựng', type: 'total', threshold: 20 },
+    { name: 'Học Thuộc 50 Từ Vựng', description: 'Đạt cột mốc 50 từ vựng đầu tiên', type: 'total', threshold: 50 },
+    { name: 'Học Thuộc 75 Từ Vựng', description: 'Chinh phục 75 từ vựng đầu tiên', type: 'total', threshold: 75 },
+    { name: 'Học Thuộc 100 Từ Vựng', description: 'Cán mốc 100 từ vựng', type: 'total', threshold: 100 },
+    // Huy hiệu chủ đề (theo set_id cụ thể)
+    { name: 'Chuyên Gia CNTT', description: 'Hoàn thành chủ đề Công nghệ thông tin', type: 'set', set_id: 5 },
+    { name: 'Hiểu Biết Xã Hội', description: 'Hoàn thành chủ đề Môi trường & Xã hội', type: 'set', set_id: 4 },
+    { name: 'Bậc Thầy Giao Tiếp', description: 'Hoàn thành chủ đề Giao tiếp thông dụng', type: 'set', set_id: 2 },
+    { name: 'Học Giả Anh Ngữ', description: 'Hoàn thành chủ đề Giáo dục học thuật', type: 'set', set_id: 3 },
+    { name: 'Kiện Tướng Chiến Thuật', description: 'Hoàn thành chủ đề Thể thao & Chiến thuật', type: 'set', set_id: 1 }
+];
+
+// Helper: Kiểm tra và trao thành tích
+async function checkAchievements(userId, connection) {
+    try {
+        // Đếm số từ đã học (status = MASTERED)
+        const [wordsLearned] = await connection.query(`
+            SELECT COUNT(*) as total
+            FROM userprogress
+            WHERE user_id = ? AND status = 'MASTERED'
+        `, [userId]);
+
+        const totalWordsLearned = wordsLearned[0].total;
+
+        // Lấy tiến độ theo từng bộ từ vựng (chỉ tính từ MASTERED)
+        const [setProgress] = await connection.query(`
+            SELECT 
+                vs.id as set_id,
+                vs.title,
+                COUNT(CASE WHEN up.status = 'MASTERED' THEN 1 END) as learned,
+                COUNT(w.id) as total
+            FROM vocabularysets vs
+            LEFT JOIN words w ON vs.id = w.set_id
+            LEFT JOIN userprogress up ON w.id = up.word_id AND up.user_id = ?
+            WHERE vs.is_active = TRUE
+            GROUP BY vs.id, vs.title
+        `, [userId]);
+
+        // Lấy danh sách thành tích đã mở khóa
+        const [unlockedAchievements] = await connection.query(`
+            SELECT achievement_name FROM achievements WHERE user_id = ?
+        `, [userId]);
+
+        const unlockedNames = unlockedAchievements.map(a => a.achievement_name);
+
+        // Kiểm tra từng thành tích
+        for (const achievement of ACHIEVEMENTS_CONFIG) {
+            if (unlockedNames.includes(achievement.name)) {
+                continue;
+            }
+
+            let shouldUnlock = false;
+
+            if (achievement.type === 'total') {
+                if (totalWordsLearned >= achievement.threshold) {
+                    shouldUnlock = true;
+                }
+            } else if (achievement.type === 'set') {
+                const setData = setProgress.find(s => s.set_id === achievement.set_id);
+                if (setData && setData.learned >= setData.total && setData.total > 0) {
+                    shouldUnlock = true;
+                }
+            }
+
+            if (shouldUnlock) {
+                await connection.query(`
+                    INSERT INTO achievements (user_id, achievement_name, description, unlocked_at)
+                    VALUES (?, ?, ?, NOW())
+                `, [userId, achievement.name, achievement.description]);
+            }
+        }
+    } catch (error) {
+        console.error('Error checking achievements:', error);
+    }
+}
+
 // =========================
 // HELPER: Tính chuỗi học liên tiếp (streak)
 // =========================
@@ -157,6 +236,9 @@ const reviewWordsBatch = async (req, res) => {
             'UPDATE users SET current_streak = ? WHERE id = ?',
             [currentStreak, userId]
         );
+
+        // 6. KIỂM TRA VÀ TRAO THÀNH TÍCH (achievements)
+        await checkAchievements(userId, connection);
 
         await connection.commit();
 

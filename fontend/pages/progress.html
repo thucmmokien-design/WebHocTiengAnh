@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordlyEN</title>
+    <title>WordlyEN - Thành Tích</title>
     <link rel="icon" href="..//img/anhmuctieu.png">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -16,10 +16,27 @@
     <div class="nav-container"></div>
     
     <main class="page-content">
-        <h1>Tiến Độ</h1>
+        <div class="achievements-header">
+            <h1><i class="fas fa-trophy"></i> Thành Tích Của Bạn</h1>
+            <div class="achievements-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-book-open"></i>
+                    <span id="totalWordsLearned">0</span> từ đã học
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-medal"></i>
+                    <span id="unlockedCount">0</span>/<span id="totalCount">9</span> huy hiệu
+                </div>
+            </div>
+        </div>
+
+        <div class="achievements-grid" id="achievementsGrid">
+            <p class="loading-text">Đang tải dữ liệu...</p>
+        </div>
     </main>
 
-    <script src="../assets/js/home.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/progress.js"></script>
     <script src="../assets/js/navbar.js"></script>
 </body>
 </html>

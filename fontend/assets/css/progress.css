@@ -1,0 +1,247 @@
+/* =========================
+   ACHIEVEMENTS PAGE STYLES
+   ========================= */
+
+.page-content {
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Section */
+.achievements-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.achievements-header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.achievements-header h1 i {
+    color: #f39c12;
+}
+
+.achievements-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.stat-badge i {
+    font-size: 1.5rem;
+}
+
+.stat-badge span {
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+/* Achievements Grid */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+/* Achievement Card */
+.achievement-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Unlocked vs Locked */
+.achievement-card.unlocked {
+    border: 3px solid #f39c12;
+}
+
+.achievement-card.locked {
+    opacity: 0.6;
+    filter: grayscale(50%);
+}
+
+/* Badge */
+.achievement-badge {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.achievement-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.unlock-icon, .lock-icon {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.unlock-icon {
+    background: #27ae60;
+    color: white;
+}
+
+.lock-icon {
+    background: #95a5a6;
+    color: white;
+}
+
+/* Achievement Info */
+.achievement-info {
+    width: 100%;
+}
+
+.achievement-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.achievement-description {
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    margin: 0 0 1rem 0;
+}
+
+/* Progress Bar */
+.achievement-progress {
+    margin: 1rem 0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #ecf0f1;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.achievement-card.unlocked .progress-fill {
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+}
+
+.progress-text {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    font-weight: 600;
+}
+
+/* Unlocked/Locked Date */
+.unlocked-date, .locked-hint {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.unlocked-date {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.locked-hint {
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Loading & Empty */
+.loading-text, .empty-text {
+    text-align: center;
+    color: #95a5a6;
+    font-style: italic;
+    padding: 3rem;
+    grid-column: 1 / -1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-content {
+        padding: 1rem;
+    }
+    
+    .achievements-header h1 {
+        font-size: 2rem;
+    }
+    
+    .achievements-stats {
+        gap: 1rem;
+    }
+    
+    .stat-badge {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .achievement-card {
+        padding: 1.5rem;
+    }
+    
+    .achievement-badge {
+        width: 100px;
+        height: 100px;
+    }
+}
