@@ -1,0 +1,54 @@
+| Từ tiếng Anh | Nghĩa tiếng Việt | Phiên âm     | Câu ví dụ                               |
+| ------------ | ---------------- | ------------ | --------------------------------------- |
+| Health       | Sức khỏe         | /helθ/       | Good health is very important.          |
+| Healthy      | Khỏe mạnh        | /ˈhelθi/     | She eats healthy food every day.        |
+| Exercise     | Tập thể dục      | /ˈeksərsaɪz/ | I exercise three times a week.          |
+| Fitness      | Thể lực          | /ˈfɪtnəs/    | Regular exercise improves fitness.      |
+| Diet         | Chế độ ăn uống   | /ˈdaɪət/     | A balanced diet helps you stay healthy. |
+| Nutrition    | Dinh dưỡng       | /nuˈtrɪʃən/  | Nutrition is important for growth.      |
+| Protein      | Chất đạm         | /ˈproʊtiːn/  | Eggs contain a lot of protein.          |
+| Vitamin      | Vitamin          | /ˈvaɪtəmɪn/  | Fruits are rich in vitamins.            |
+| Muscle       | Cơ bắp           | /ˈmʌsəl/     | Weight training builds muscle.          |
+| Strength     | Sức mạnh         | /streŋθ/     | Squats increase leg strength.           |
+| Energy       | Năng lượng       | /ˈenərdʒi/   | I need more energy after work.          |
+| Sleep        | Giấc ngủ         | /sliːp/      | Getting enough sleep is important.      |
+| Rest         | Nghỉ ngơi        | /rest/       | You should rest after exercise.         |
+| Injury       | Chấn thương      | /ˈɪndʒəri/   | He suffered a knee injury.              |
+| Pain         | Đau              | /peɪn/       | I feel pain in my shoulder.             |
+| Recovery     | Phục hồi         | /rɪˈkʌvəri/  | Recovery takes time after an injury.    |
+| Hospital     | Bệnh viện        | /ˈhɑːspɪtl/  | He was taken to the hospital.           |
+| Doctor       | Bác sĩ           | /ˈdɑːktər/   | The doctor gave me some advice.         |
+| Medicine     | Thuốc            | /ˈmedɪsɪn/   | Take your medicine on time.             |
+| Disease      | Bệnh tật         | /dɪˈziːz/    | Exercise helps prevent disease.         |
+
+**| Từ tiếng Anh | Nghĩa tiếng Việt | Phiên âm         | Câu ví dụ                               |**
+
+**| ------------ | ---------------- | ---------------- | --------------------------------------- |**
+**| Warm-up      | Khởi động        | /ˈwɔːrm ʌp/      | Always do a warm-up before training.    |**
+**| Stretch      | Giãn cơ          | /stretʃ/         | Stretch your legs after football.       |**
+**| Endurance    | Sức bền          | /ɪnˈdʊrəns/      | Running improves endurance.             |**
+**| Stamina      | Thể lực bền bỉ   | /ˈstæmɪnə/       | Football requires good stamina.         |**
+**| Cardio       | Bài tập tim mạch | /ˈkɑːrdioʊ/      | Cardio burns a lot of calories.         |**
+**| Workout      | Buổi tập         | /ˈwɜːrkaʊt/      | I had a great workout today.            |**
+**| Gym          | Phòng tập gym    | /dʒɪm/           | I go to the gym five times a week.      |**
+**| Calorie      | Calo             | /ˈkæləri/        | This meal contains 500 calories.        |**
+**| Hydration    | Bổ sung nước     | /haɪˈdreɪʃən/    | Hydration is important during exercise. |**
+**| Flexibility  | Độ dẻo dai       | /ˌfleksəˈbɪləti/ | Yoga improves flexibility.              |**
+
+
+&#x20;**| Từ tiếng Anh | Nghĩa tiếng Việt | Phiên âm         | Câu ví dụ                               |**
+
+**| ------------ | ---------------- | ---------------- | --------------------------------------- |**
+**| Warm-up      | Khởi động        | /ˈwɔːrm ʌp/      | Always do a warm-up before training.    |**
+**| Stretch      | Giãn cơ          | /stretʃ/         | Stretch your legs after football.       |**
+**| Endurance    | Sức bền          | /ɪnˈdʊrəns/      | Running improves endurance.             |**
+**| Stamina      | Thể lực bền bỉ   | /ˈstæmɪnə/       | Football requires good stamina.         |**
+**| Cardio       | Bài tập tim mạch | /ˈkɑːrdioʊ/      | Cardio burns a lot of calories.         |**
+**| Workout      | Buổi tập         | /ˈwɜːrkaʊt/      | I had a great workout today.            |**
+**| Gym          | Phòng tập gym    | /dʒɪm/           | I go to the gym five times a week.      |**
+**| Calorie      | Calo             | /ˈkæləri/        | This meal contains 500 calories.        |**
+**| Hydration    | Bổ sung nước     | /haɪˈdreɪʃən/    | Hydration is important during exercise. |**
+**| Flexibility  | Độ dẻo dai       | /ˌfleksəˈbɪləti/ | Yoga improves flexibility.              |**
+
+
+

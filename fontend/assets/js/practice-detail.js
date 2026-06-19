@@ -296,16 +296,8 @@ async function submitReviewBatch() {
             alert('Vui lòng đăng nhập!');
             return;
         }
-
-        console.log('📤 Submitting review batch:', reviewBatch);
-
         const response = await api.post('/progress/review-batch', reviewBatch, token);
-
-        console.log('✅ Review batch submitted successfully:', response);
-
         alert(`🎉 Hoàn thành! Bạn đã học xong bộ từ vựng này.\n\nKết quả: ${reviewBatch.reviews.filter(r => r.is_remembered).length}/${reviewBatch.reviews.length} từ đã nhớ`);
-
-        // Quay lại trang practice
         setTimeout(() => {
             window.location.href = 'practice.html';
         }, 1500);

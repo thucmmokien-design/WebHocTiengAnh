@@ -78,17 +78,17 @@
 }
 
 .streak-card .stat-icon {
-    background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%);
+    background: #FFA726;
     color: white;
 }
 
 .words-card .stat-icon {
-    background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+    background: #42A5F5;
     color: white;
 }
 
 .memory-card .stat-icon {
-    background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
+    background: #66BB6A;
     color: white;
 }
 
@@ -458,15 +458,15 @@
 }
 
 .bar.low {
-    background: linear-gradient(180deg, #FFA726 0%, #FB8C00 100%);
+    background: #FFA726;
 }
 
 .bar.medium {
-    background: linear-gradient(180deg, #42A5F5 0%, #1E88E5 100%);
+    background: #42A5F5;
 }
 
 .bar.high {
-    background: linear-gradient(180deg, #66BB6A 0%, #43A047 100%);
+    background: #66BB6A;
 }
 
 .bar-value {
@@ -544,7 +544,7 @@
 }
 
 .review-count {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
     padding: 0.5rem 1.2rem;
     border-radius: 20px;
@@ -554,7 +554,7 @@
 }
 
 .review-words-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     border-radius: 16px;
     padding: 1.5rem 0;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);

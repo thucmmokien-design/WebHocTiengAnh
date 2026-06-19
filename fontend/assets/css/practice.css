@@ -247,7 +247,7 @@
 
 /* Practice Button */
 .btn-practice {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
     border: none;
     padding: 0.6rem 1.5rem;
@@ -319,13 +319,13 @@
 .add-new-card {
     cursor: pointer;
     border: 2px dashed #667eea;
-    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    background: #f8f9ff;
     transition: all 0.3s ease;
 }
 
 .add-new-card:hover {
     border-color: #764ba2;
-    background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+    background: #f0f2ff;
     transform: translateY(-5px);
 }
 
@@ -589,7 +589,7 @@ textarea.form-input {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
 }
 
@@ -636,7 +636,7 @@ textarea.form-input {
     width: 120px;
     height: 120px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #f8f9ff 0%, #ecf0f1 100%);
+    background: #ecf0f1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -750,7 +750,7 @@ textarea.form-input {
 }
 
 .nav-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -776,7 +776,7 @@ textarea.form-input {
 }
 
 .nav-btn:disabled {
-    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    background: #95a5a6;
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -786,7 +786,7 @@ textarea.form-input {
     font-weight: 700;
     color: #2c3e50;
     padding: 0.7rem 2rem;
-    background: linear-gradient(135deg, #f8f9ff 0%, #ecf0f1 100%);
+    background: #f8f9ff;
     border-radius: 25px;
     border: 2px solid #667eea;
 }
@@ -884,12 +884,12 @@ textarea.form-input {
 }
 
 .flashcard-front {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
 }
 
 .flashcard-back {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #f093fb;
     color: white;
     transform: rotateY(180deg);
 }

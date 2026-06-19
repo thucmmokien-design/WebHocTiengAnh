@@ -94,52 +94,27 @@ function hideMessages() {
 // LOGIN FORM
 // =========================
 function initLoginForm() {
-    console.log('🔍 Tìm kiếm form login...');
     const loginForm = document.getElementById('loginForm');
-    console.log('📝 Login form:', loginForm);
-
     if (!loginForm) {
-        console.log('⚠️ Không tìm thấy login form');
         return;
     }
-
-    console.log('✅ Tìm thấy login form, đang gắn event listener');
-    
     // Get API_BASE_URL from window (set by api.js)
     const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000/api';
-    
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        e.stopPropagation();
-        console.log('🚀 Form đã submit!');
-        
+        e.stopPropagation();  
         hideMessages();
-        
-        // Lấy dữ liệu form
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const remember = document.getElementById('remember').checked;
-        
-        console.log('📧 Email:', email);
-        console.log('🔐 Password:', password ? '***' : 'empty');
-        console.log('💾 Remember:', remember);
-        
-        // Validate
         if (!email || !password) {
             showError('Vui lòng nhập đầy đủ thông tin!');
             return;
         }
-        
-        // Disable button
         const loginBtn = document.getElementById('loginBtn');
         loginBtn.disabled = true;
         loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
-        
         try {
-            // Gọi API login
-            console.log('🔄 Đang gọi API login:', `${API_BASE_URL}/auth/login`);
-            console.log('📤 Dữ liệu gửi:', { email, password: '***' });
-            
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -147,16 +122,8 @@ function initLoginForm() {
                 },
                 body: JSON.stringify({ email, password })
             });
-            
-            console.log('📥 Response status:', response.status);
             const data = await response.json();
-            console.log('📥 Response data:', data);
-            
             if (response.ok) {
-                // Đăng nhập thành công
-                console.log('✅ Đăng nhập thành công:', data);
-                
-                // Lưu token
                 if (remember) {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
@@ -166,22 +133,13 @@ function initLoginForm() {
                 }
                 localStorage.setItem("nav-container","true");
                 localStorage.setItem("page-content", "true");
-                
-                console.log('💾 Token đã lưu:', remember ? 'localStorage' : 'sessionStorage');
-                
-                // Chuyển đến trang chủ
-                console.log('🚀 Chuyển đến trang home .html');
                 window.location.href = 'home .html';
             } else {
-                // Đăng nhập thất bại
-                console.error('❌ Đăng nhập thất bại:', data.message);
                 showError(data.message || 'Email hoặc mật khẩu không đúng!');
             }
         } catch (error) {
-            console.error('❌ Lỗi:', error);
             showError('Không thể kết nối đến server. Vui lòng thử lại!');
         } finally {
-            // Enable button
             loginBtn.disabled = false;
             loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng Nhập';
         }
@@ -195,27 +153,20 @@ function initRegisterForm() {
     const registerForm = document.getElementById('registerForm');
     
     if (!registerForm) {
-        console.log('⚠️ Không tìm thấy register form');
         return;
-    }
-
-    console.log('✅ Tìm thấy register form');
-    
+    }    
     // Get API_BASE_URL from window (set by api.js)
     const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000/api';
-    
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         e.stopPropagation();
         hideMessages();
         
-        // Lấy dữ liệu form
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const terms = document.getElementById('terms').checked;
-        
-        // Validate
+
         if (!email || !password || !confirmPassword) {
             showError('Vui lòng nhập đầy đủ thông tin!');
             return;
@@ -236,13 +187,11 @@ function initRegisterForm() {
             return;
         }
         
-        // Disable button
         const registerBtn = document.getElementById('registerBtn');
         registerBtn.disabled = true;
         registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
         
         try {
-            // Gọi API register
             const response = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
@@ -254,23 +203,17 @@ function initRegisterForm() {
             const data = await response.json();
             
             if (response.ok) {
-                // Đăng ký thành công
-                console.log('✅ Đăng ký thành công:', data);
                 showSuccess('Đăng ký thành công! Đang chuyển đến trang đăng nhập...');
                 
-                // Chuyển đến trang login sau 2 giây
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 2000);
             } else {
-                // Đăng ký thất bại
                 showError(data.message || 'Đăng ký thất bại. Vui lòng thử lại!');
             }
         } catch (error) {
-            console.error('❌ Lỗi:', error);
             showError('Không thể kết nối đến server. Vui lòng thử lại!');
         } finally {
-            // Enable button
             registerBtn.disabled = false;
             registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Đăng Ký';
         }

@@ -174,12 +174,16 @@ const reviewWordsBatch = async (req, res) => {
 
             if (existingProgress.length > 0) {
                 const progress = existingProgress[0];
+                const previousMemoryLevel = Number(progress.memory_level) || 0;
+                const wasAlreadyLearned = progress.status && progress.status !== 'NEW' && progress.status !== 'LEARNING';
+
                 if (is_remembered) {
-                    memoryLevel = progress.memory_level + 1;
+                    memoryLevel = previousMemoryLevel + 1;
                     status = memoryLevel >= 5 ? 'MASTERED' : 'REVIEWING';
                     daysToAdd = memoryLevel * 2; 
                 } else {
-                    memoryLevel = 1;
+                    memoryLevel = Math.max(1, previousMemoryLevel - 1);
+                    status = wasAlreadyLearned ? 'REVIEWING' : 'LEARNING';
                     daysToAdd = 1;
                 }
 
@@ -193,6 +197,7 @@ const reviewWordsBatch = async (req, res) => {
             } else {
                 if (is_remembered) {
                     memoryLevel = 2;
+                    status = 'REVIEWING';
                     daysToAdd = 2;
                 }
                 await connection.query(
